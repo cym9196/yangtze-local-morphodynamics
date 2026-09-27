@@ -7,7 +7,7 @@ FoamFile
     object      turbulenceProperties;
 }
 
-// Reynolds number based on depth is about 25000, so RAS is used.
+// Depth-based Reynolds number is about 1.10e5, so a RANS baseline is used.
 simulationType RAS;
 
 RAS
@@ -16,4 +16,3 @@ RAS
     turbulence      on;
     printCoeffs     on;
 }
-

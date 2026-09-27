@@ -10,6 +10,8 @@ flow,water temperature,T,15,degC,engineering baseline,season dependent
 flow,water density,rho_f,999,kg/m3,fresh water at 15 degC,997-1000
 flow,kinematic viscosity,nu,1.14e-6,m2/s,fresh water at 15 degC,temperature dependent
 flow,gravity,g,9.80665,m/s2,standard gravity,fixed
+flow,depth Reynolds number,Re_H,1.096e5,-,U*H/nu,derived
+flow,Froude number,Fr,0.319,-,U/sqrt(g*H),subcritical
 turbulence,model,,k-omega SST,-,OpenFOAM RANS baseline,compare with LES in validation
 turbulence,inlet intensity,I,0.05,-,engineering baseline,0.03-0.10
 turbulence,length scale,l,0.0175,m,0.07 water depth,site dependent
