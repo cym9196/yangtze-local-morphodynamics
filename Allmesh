@@ -1,0 +1,22 @@
+#!/bin/sh
+# Generate the conformal 1--25 mm mesh and its finite-area Exner bed.
+
+cd "${0%/*}" || exit 1
+
+if [ -z "${WM_PROJECT_DIR:-}" ]; then
+    . /usr/lib/openfoam/openfoam2412/etc/bashrc
+fi
+
+set -e
+rm -rf constant/polyMesh constant/faMesh
+
+# This generator documents every refinement band and avoids maintaining 75
+# hand-written hexahedral blocks.
+python3 make_variable_mesh.py
+blockMesh > log.blockMesh 2>&1
+checkMesh > log.checkMesh 2>&1
+makeFaMesh > log.makeFaMesh 2>&1
+checkFaMesh > log.checkFaMesh 2>&1
+
+touch yangtzeIronBlock3D_1to25mm.foam
+echo "1--25 mm immersed-boundary mesh completed"

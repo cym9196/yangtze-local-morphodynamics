@@ -1,0 +1,13 @@
+0/
+[1-9]*/
+processor*/
+constant/polyMesh/
+constant/faMesh/
+frames*/
+postProcessing/
+log.*
+*.mp4
+*.png
+*.pyc
+__pycache__/
+solver/immersedSedExnerFoam/Make/linux*/

@@ -1,0 +1,37 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+
+application     immersedSedExnerFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+
+// 3 s hydrodynamic spin-up + 60 s coupled sediment/body simulation.
+endTime         63;
+deltaT          0.0001;
+
+// Write snapshots frequently enough for near-real-time ParaView refresh.
+writeControl    adjustableRunTime;
+writeInterval   2.0;
+purgeWrite      0;
+writeFormat     binary;
+writePrecision  8;
+// OpenFOAM disables compression for binary fields; keep this explicit.
+writeCompression off;
+timeFormat      general;
+timePrecision   8;
+
+runTimeModifiable true;
+adjustTimeStep    true;
+maxCo             0.35;
+// U=0.50 m/s and a 1 mm minimum cell imply dt <= 0.0007 s at Co=0.35.
+maxDeltaT         0.0005;
+
+functions {};

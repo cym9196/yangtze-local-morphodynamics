@@ -1,0 +1,51 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      bedloadProperties;
+}
+
+// Activate the Exner sediment-bed model on patch bed.
+sedimentBed        on;
+bedMotion          on;
+sedimentBedPatches (bed);
+
+// First-order explicit update is conservative for the initial coarse test.
+ABorder 0;
+
+// Hold bed elevation only at the outer flume perimeter. The immersed solid
+// does not create a hole or an artificial fixed line in the finite-area bed.
+fixedFaPatches (inletFa outletFa sideWallsFa);
+
+bedloadModel
+{
+    type            MeyerPeter;
+    slopeCorrection on;
+
+    avalanche       on;
+    Qav             1e-3;
+    NfiltBeta       1;
+    alphaFiltBeta   0.1;
+    onEdge          off;
+
+    // Physical baseline: no artificial multiplication of bed shear stress.
+    coefShields     1;
+}
+
+criticalShieldsModel
+{
+    type            Soulsby;
+    slopeCorrection on;
+}
+
+// One CFD second equals one physical second.
+morphoAccFactor 1;
+
+filterExner      off;
+alphaFiltExner  0.1;
+NfiltExner      1;
+
+// A rigid layer is 0.25 m below the initial bed (defined in rigidBed).
+rigidBed on;

@@ -1,0 +1,40 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      k;
+}
+
+// 5% inlet turbulence intensity at U=0.50 m/s:
+// k = 1.5*(I*U)^2 = 9.375e-4 m2/s2.
+dimensions    [0 2 -2 0 0 0 0];
+internalField uniform 9.375e-4;
+
+boundaryField
+{
+    inlet
+    {
+        type  fixedValue;
+        value uniform 9.375e-4;
+    }
+    outlet
+    {
+        type zeroGradient;
+    }
+    top
+    {
+        type symmetryPlane;
+    }
+    bed
+    {
+        type  kqRWallFunction;
+        value uniform 9.375e-4;
+    }
+    sideWalls
+    {
+        type  kqRWallFunction;
+        value uniform 9.375e-4;
+    }
+}

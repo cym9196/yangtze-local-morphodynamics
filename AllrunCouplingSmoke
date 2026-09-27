@@ -1,0 +1,39 @@
+#!/bin/sh
+# Validate the sediment exchange, Exner update, contact and 6-DoF branches.
+# The production dictionaries are restored automatically on every exit path.
+
+cd "${0%/*}" || exit 1
+
+if [ -z "${WM_PROJECT_DIR:-}" ]; then
+    . /usr/lib/openfoam/openfoam2412/etc/bashrc
+fi
+
+set -e
+
+restore_production()
+{
+    foamDictionary system/controlDict -entry endTime -set 63 >/dev/null
+    foamDictionary constant/immersedBodyProperties \
+        -entry releaseTime -set 3.0 >/dev/null
+    foamDictionary constant/immersedBodyProperties \
+        -entry sedimentReleaseTime -set 3.0 >/dev/null
+}
+trap restore_production EXIT INT TERM
+
+foamListTimes -rm >/dev/null 2>&1 || true
+foamListTimes -processor -rm >/dev/null 2>&1 || true
+rm -rf 0 postProcessing
+cp -r 0_org 0
+
+# Release both branches immediately, but integrate only two tiny steps.
+foamDictionary system/controlDict -entry endTime -set 0.0003 >/dev/null
+foamDictionary constant/immersedBodyProperties \
+    -entry releaseTime -set 0 >/dev/null
+foamDictionary constant/immersedBodyProperties \
+    -entry sedimentReleaseTime -set 0 >/dev/null
+
+decomposePar -force > log.decomposePar.couplingSmoke 2>&1
+/usr/bin/time -v mpirun -np 6 immersedSedExnerFoam -parallel \
+    > log.couplingSmoke 2> log.couplingSmoke.resources
+
+echo "Coupling smoke test completed; production dictionaries restored"

@@ -1,0 +1,22 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      transportProperties;
+}
+
+// Representative middle/lower Yangtze alluvial bed material.  The current
+// solver is single-fraction, so dS is the bed-material d50; wash-load fines
+// are recorded in the parameter manifest but are not mixed into this value.
+rhoS    [1 -3 0 0 0 0 0] 2650;
+dS      [0 1 0 0 0 0 0]  2.3e-4;  // d50 = 0.23 mm
+CsMax   [0 0 0 0 0 0 0]  0.60;
+reposeAngle 32;
+
+// Fresh water at 15 degC.
+transportModel Newtonian;
+nu      nu [0 2 -1 0 0 0 0] 1.14e-6;
+rhoF    [1 -3 0 0 0 0 0] 999;
+Sc      1.0;

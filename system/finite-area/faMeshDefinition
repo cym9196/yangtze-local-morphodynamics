@@ -1,0 +1,39 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      faMeshDefinition;
+}
+
+// The Exner equation is solved only on the movable bottom patch.
+polyMeshPatches ("bed");
+
+// Each outer edge of the bed is associated with its neighbouring volume patch.
+boundary
+{
+    inletFa
+    {
+        type patch;
+        neighbourPolyPatch inlet;
+    }
+
+    outletFa
+    {
+        type patch;
+        neighbourPolyPatch outlet;
+    }
+
+    sideWallsFa
+    {
+        type patch;
+        neighbourPolyPatch sideWalls;
+    }
+
+}
+
+defaultPatch
+{
+    name defaultFa;
+    type patch;
+}

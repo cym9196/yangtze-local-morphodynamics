@@ -1,0 +1,36 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      Ws;
+}
+
+// The solver overwrites this with the selected Fredsoe settling model.
+dimensions    [0 1 -1 0 0 0 0];
+internalField uniform (0 0 0);
+
+boundaryField
+{
+    inlet
+    {
+        type zeroGradient;
+    }
+    outlet
+    {
+        type zeroGradient;
+    }
+    top
+    {
+        type symmetryPlane;
+    }
+    bed
+    {
+        type zeroGradient;
+    }
+    sideWalls
+    {
+        type zeroGradient;
+    }
+}

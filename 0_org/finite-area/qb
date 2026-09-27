@@ -1,0 +1,33 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       areaVectorField;
+    location    "0/finite-area";
+    object      qb;
+}
+
+dimensions    [0 2 -1 0 0 0 0];
+internalField uniform (0 0 0);
+
+boundaryField
+{
+    inletFa
+    {
+        type  fixedValue;
+        value uniform (0 0 0);
+    }
+    outletFa
+    {
+        type zeroGradient;
+    }
+    sideWallsFa
+    {
+        type  fixedValue;
+        value uniform (0 0 0);
+    }
+    defaultFa
+    {
+        type zeroGradient;
+    }
+}

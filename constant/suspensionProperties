@@ -1,0 +1,30 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      suspensionProperties;
+}
+
+// Suspended sediment is active. The inlet concentration is zero; sediment
+// enters suspension through the solver's bed erosion/deposition exchange.
+suspension on;
+
+fallModel
+{
+    type Fredsoe;
+}
+
+hindranceModel
+{
+    type none;
+}
+
+wallDiffusivity
+{
+    alpha 5e-6;
+    beta  5;
+}
+
+CsbMax 0.15;
+

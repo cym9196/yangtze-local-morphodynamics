@@ -1,0 +1,11 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      decomposeParDict;
+}
+
+// Six physical CPU cores are available on the target Ubuntu host.
+numberOfSubdomains 6;
+method scotch;

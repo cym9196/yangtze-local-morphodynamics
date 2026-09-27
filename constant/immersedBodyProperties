@@ -1,0 +1,75 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      immersedBodyProperties;
+}
+
+// Analytic homogeneous iron cuboid, 0.10 x 0.10 x 0.20 m.
+halfSize                  (0.05 0.05 0.10);
+
+// Brinkman relaxation and a two-cell transition on the 1 mm core mesh.
+penaltyTime               0.0002;
+interfaceThickness        0.0020;
+
+// The central 70% of the footprint is protected from artificial Exner shear;
+// the 15 mm edge band remains active so hydraulic undercutting can occur.
+sedimentMaskHalfFraction  0.70;
+
+// Hold the block fixed for the first second so the immersed-boundary flow
+// can establish without applying a non-physical start-up impulse.
+releaseTime               3.0;
+sedimentReleaseTime       3.0;
+
+// Parallel-safe bed contact. The 25 points sample the lower face of the
+// cuboid; the nearest finite-area bed elevation is reduced across MPI ranks.
+contactProperties
+{
+    contactArea          0.01;
+    // A compliant, over-damped dense-sand foundation.  This avoids the
+    // non-physical rebound produced by treating the bed like a steel plate.
+    foundationStiffness  5.0e6;
+    dampingRatio         1.20;
+    staticFriction       0.52;
+    dynamicFriction      0.42;
+    frictionVelocity     0.01;
+    bearingCapacity      1.8e4;
+    searchRadius         0.015;
+
+    displacedVolume      0.002;
+    fluidDensity         999;
+
+    contactPoints
+    (
+        (0.2050 0.2050 0) (0.2275 0.2050 0) (0.2500 0.2050 0) (0.2725 0.2050 0) (0.2950 0.2050 0)
+        (0.2050 0.2275 0) (0.2275 0.2275 0) (0.2500 0.2275 0) (0.2725 0.2275 0) (0.2950 0.2275 0)
+        (0.2050 0.2500 0) (0.2275 0.2500 0) (0.2500 0.2500 0) (0.2725 0.2500 0) (0.2950 0.2500 0)
+        (0.2050 0.2725 0) (0.2275 0.2725 0) (0.2500 0.2725 0) (0.2725 0.2725 0) (0.2950 0.2725 0)
+        (0.2050 0.2950 0) (0.2275 0.2950 0) (0.2500 0.2950 0) (0.2725 0.2950 0) (0.2950 0.2950 0)
+    );
+}
+
+sixDoFCoeffs
+{
+    centreOfMass       (0.25 0.25 0.10);
+    mass               15.74;
+    momentOfInertia    (0.0655833 0.0655833 0.0262333);
+    velocity           (0 0 0);
+    acceleration       (0 0 0);
+    angularMomentum    (0 0 0);
+    torque             (0 0 0);
+    orientation        (1 0 0 0 1 0 0 0 1);
+
+    accelerationRelaxation 0.3;
+    accelerationDamping    1.0;
+    report                 no;
+
+    solver
+    {
+        type Newmark;
+        gamma 0.5;
+        beta  0.25;
+    }
+}

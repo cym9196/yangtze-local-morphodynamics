@@ -1,0 +1,24 @@
+#!/bin/sh
+# Rebuild, spin up for 3 s, then run 60 physical seconds of coupled motion.
+
+cd "${0%/*}" || exit 1
+
+if [ -z "${WM_PROJECT_DIR:-}" ]; then
+    . /usr/lib/openfoam/openfoam2412/etc/bashrc
+fi
+
+set -e
+./Allmesh
+foamListTimes -rm >/dev/null 2>&1 || true
+foamListTimes -processor -rm >/dev/null 2>&1 || true
+rm -rf 0 postProcessing
+cp -r 0_org 0
+
+# Six MPI ranks match the six physical CPU cores on the target Ubuntu host.
+decomposePar -force > log.decomposePar 2>&1
+mpirun -np 6 immersedSedExnerFoam -parallel \
+    > log.immersedSedExnerFoam.63s 2>&1
+
+# Preserve disk space: all partitioned snapshots remain available for a
+# decomposed ParaView time series, while only the final global state is made.
+reconstructPar -latestTime > log.reconstructPar 2>&1

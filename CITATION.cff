@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If this model supports a publication, cite this repository and the underlying OpenFOAM/sedExnerFoam software."
+title: "Yangtze local 3D morphodynamic iron-block benchmark"
+type: software
+authors:
+  - family-names: "Cym"
+version: 0.1.0
+date-released: 2026-09-27
+license: GPL-3.0-or-later

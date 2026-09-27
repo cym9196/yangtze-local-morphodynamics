@@ -1,0 +1,31 @@
+#!/bin/sh
+# Short six-rank validation/benchmark. It changes endTime only temporarily.
+
+cd "${0%/*}" || exit 1
+
+if [ -z "${WM_PROJECT_DIR:-}" ]; then
+    . /usr/lib/openfoam/openfoam2412/etc/bashrc
+fi
+
+set -e
+
+# Always restore the production end time even if MPI or a solver check fails.
+restore_control()
+{
+    foamDictionary system/controlDict -entry endTime -set 63 >/dev/null
+}
+trap restore_control EXIT INT TERM
+
+foamListTimes -rm >/dev/null 2>&1 || true
+foamListTimes -processor -rm >/dev/null 2>&1 || true
+rm -rf 0 postProcessing
+cp -r 0_org 0
+
+foamDictionary system/controlDict -entry endTime -set 0.001 >/dev/null
+decomposePar -force > log.decomposePar.smoke 2>&1
+
+# /usr/bin/time records peak resident memory for feasibility assessment.
+/usr/bin/time -v mpirun -np 6 immersedSedExnerFoam -parallel \
+    > log.smoke 2> log.smoke.resources
+
+echo "Smoke test completed; production endTime restored to 63 s"

@@ -1,0 +1,42 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      nut;
+}
+
+dimensions    [0 2 -1 0 0 0 0];
+internalField uniform 1e-6;
+
+boundaryField
+{
+    inlet
+    {
+        type  calculated;
+        value uniform 1e-6;
+    }
+    outlet
+    {
+        type  calculated;
+        value uniform 1e-6;
+    }
+    top
+    {
+        type symmetryPlane;
+    }
+    bed
+    {
+        // Nikuradse equivalent roughness Ks ~= 2.5*d50.
+        type  nutkRoughWallFunction;
+        Ks    uniform 5.75e-4;
+        Cs    uniform 0.5;
+        value uniform 1e-6;
+    }
+    sideWalls
+    {
+        type  nutkWallFunction;
+        value uniform 1e-6;
+    }
+}
