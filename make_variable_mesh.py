@@ -129,7 +129,9 @@ for name, (kind, faces) in patches.items():
     lines += ["        );", "    }"]
 
 lines += [");", "", "mergePatchPairs ();", ""]
-OUT.write_text("\n".join(lines), encoding="ascii")
+# Write bytes so Windows does not translate LF to CRLF.  The generated file is
+# then byte-identical on Windows, Ubuntu and GitHub Actions.
+OUT.write_bytes("\n".join(lines).encode("ascii"))
 
 ncells = sum(NX) * sum(NY) * sum(NZ)
 nbed = sum(NX) * sum(NY)
