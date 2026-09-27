@@ -35,6 +35,22 @@ def expect(relative: str, key: str, wanted: float, tolerance: float = 1e-10) -> 
         errors.append(f"{relative}: {key}={actual}, expected {wanted}")
 
 
+def expect_vector(relative: str, key: str, wanted: tuple[float, ...]) -> None:
+    match = re.search(
+        rf"(?m)^\s*{re.escape(key)}\s+\(([^)]+)\)\s*;",
+        text(relative),
+    )
+    if not match:
+        errors.append(f"cannot find vector {key!r} in {relative}")
+        return
+    actual = tuple(float(value) for value in match.group(1).split())
+    if len(actual) != len(wanted) or any(
+        not math.isclose(a, b, rel_tol=1e-10, abs_tol=1e-10)
+        for a, b in zip(actual, wanted)
+    ):
+        errors.append(f"{relative}: {key}={actual}, expected {wanted}")
+
+
 checks = [
     ("constant/transportProperties", "rhoS", 2650.0),
     ("constant/transportProperties", "dS", 2.3e-4),
@@ -47,12 +63,22 @@ checks = [
     ("constant/immersedBodyProperties", "interfaceThickness", 2.0e-3),
     ("constant/immersedBodyProperties", "releaseTime", 3.0),
     ("constant/immersedBodyProperties", "sedimentReleaseTime", 3.0),
+    ("constant/immersedBodyProperties", "mass", 15.74),
+    ("constant/immersedBodyProperties", "staticFriction", 0.52),
+    ("constant/immersedBodyProperties", "dynamicFriction", 0.42),
     ("system/controlDict", "endTime", 63.0),
     ("system/controlDict", "maxCo", 0.35),
     ("system/controlDict", "maxDeltaT", 5.0e-4),
 ]
 for item in checks:
     expect(*item)
+
+expect_vector("constant/immersedBodyProperties", "halfSize", (0.05, 0.05, 0.10))
+expect_vector(
+    "constant/immersedBodyProperties",
+    "momentOfInertia",
+    (0.0655833, 0.0655833, 0.0262333),
+)
 
 # Values that are nested or vector-valued are checked explicitly.
 required_fragments = {
@@ -62,13 +88,6 @@ required_fragments = {
     "0_org/k": ["uniform 9.375e-4;"],
     "0_org/omega": ["uniform 3.2;"],
     "0_org/nut": ["nutkRoughWallFunction", "Ks    uniform 5.75e-4;"],
-    "constant/immersedBodyProperties": [
-        "halfSize                  (0.05 0.05 0.10);",
-        "mass               15.74;",
-        "momentOfInertia    (0.0655833 0.0655833 0.0262333);",
-        "staticFriction       0.52;",
-        "dynamicFriction      0.42;",
-    ],
 }
 for relative, fragments in required_fragments.items():
     content = text(relative)
