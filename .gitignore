@@ -9,5 +9,6 @@ log.*
 *.mp4
 *.png
 *.pyc
+slurm-*.out
 __pycache__/
 solver/immersedSedExnerFoam/Make/linux*/

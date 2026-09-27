@@ -8,16 +8,32 @@ if [ -z "${WM_PROJECT_DIR:-}" ]; then
 fi
 
 set -e
-./Allmesh
+
+# Defaults match the desktop; an HPC allocation can export NPROCS and reuse an
+# already checked mesh with SKIP_MESH=1.
+NPROCS="${NPROCS:-6}"
+SKIP_MESH="${SKIP_MESH:-0}"
+
+if [ "$SKIP_MESH" != "1" ]; then
+    ./Allmesh
+fi
 foamListTimes -rm >/dev/null 2>&1 || true
 foamListTimes -processor -rm >/dev/null 2>&1 || true
 rm -rf 0 postProcessing
 cp -r 0_org 0
 
-# Six MPI ranks match the six physical CPU cores on the target Ubuntu host.
+# Keep decomposition and the launch allocation consistent.
+foamDictionary system/decomposeParDict \
+    -entry numberOfSubdomains -set "$NPROCS" >/dev/null
 decomposePar -force > log.decomposePar 2>&1
-mpirun -np 6 immersedSedExnerFoam -parallel \
-    > log.immersedSedExnerFoam.63s 2>&1
+
+if [ -n "${SLURM_JOB_ID:-}" ]; then
+    srun immersedSedExnerFoam -parallel \
+        > log.immersedSedExnerFoam.63s 2>&1
+else
+    mpirun -np "$NPROCS" immersedSedExnerFoam -parallel \
+        > log.immersedSedExnerFoam.63s 2>&1
+fi
 
 # Preserve disk space: all partitioned snapshots remain available for a
 # decomposed ParaView time series, while only the final global state is made.

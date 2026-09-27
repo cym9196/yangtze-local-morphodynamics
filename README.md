@@ -7,6 +7,8 @@
 该模型面向“局部机理研究”，不是未经率定即可代表任意长江河段的工程预报模型。
 所有选值、单位、来源性质和建议范围都列在
 `parameters/model_parameters.csv`，以后用现场 ADCP、床沙筛分和冲淤测量替换即可。
+观测依据与模型原始文献见 `REFERENCES.md`；`validate_case.py` 会检查参数表、
+字典和几何推导是否发生不一致。
 
 ## 1. 已实现的物理过程
 
@@ -69,6 +71,7 @@ cd ../..
 # 第三步：只生成网格并检查体网格和有限面积床面
 ./Allmesh
 grep -E "cells:|Max aspect|Mesh OK" log.checkMesh
+python3 validate_case.py
 
 # 第四步：6 核完整计算。3 s 启动 + 60 s 耦合。
 ./Allrun63s
@@ -84,6 +87,14 @@ Ubuntu 的磁盘被写满。计算中断后不要重新建网格，可从最新�
 sed -i 's/startFrom       startTime;/startFrom       latestTime;/' system/controlDict
 mpirun -np 6 immersedSedExnerFoam -parallel \
   >> log.immersedSedExnerFoam.63s 2>&1
+```
+
+六核短测表明本机完整运行约需 3–8 周。集群上从算例目录提交前，先根据站点
+修改 `hpc/submit_slurm.sh` 的账户、分区和 OpenFOAM 环境；默认模板申请 64 核、
+128 GiB 内存和 7 天。正式提交前应先把 `endTime` 暂改为 0.1 s 做强缩放测试。
+
+```bash
+sbatch hpc/submit_slurm.sh
 ```
 
 ## 5. ParaView 查看与视频

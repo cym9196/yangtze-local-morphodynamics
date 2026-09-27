@@ -1,0 +1,17 @@
+name: validate-case
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  dictionaries-and-mesh-generator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Regenerate deterministic mesh dictionary
+        run: python3 make_variable_mesh.py
+      - name: Check generated file and parameter consistency
+        run: |
+          git diff --exit-code -- system/blockMeshDict
+          python3 validate_case.py
