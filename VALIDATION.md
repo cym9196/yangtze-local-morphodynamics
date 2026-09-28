@@ -28,7 +28,8 @@ the same run:
 - six-face contact force was finite and included tangential friction
   `(-0.0846, 0, 19.8656) N` after the second regression step;
 - parallel run exited with status 0 and no swap activity;
-- elapsed time was 92.43 s for two start-up steps at about 586% CPU.
+- latest final-regression elapsed time was 84.34 s for two coupled start-up
+  steps; `/usr/bin/time` returned exit status 0.
 
 The production release times (`3 s`) and production end time (`63 s`) were
 automatically restored after the test.
@@ -45,6 +46,12 @@ from a fixed vertical direction to the nearest evolving finite-area bed tangent
 plane. The solver compiled and repeated the same coupled regression with
 identical flat-bed reference forces and exit status 0, as expected before the
 bed develops a slope.
+
+The authoritative remote evidence is preserved as
+`log.couplingSmoke.finalRegression`,
+`log.couplingSmoke.resources.finalRegression` and `finalRegression.sha256` in
+the Ubuntu case directory; it is not committed because runtime logs are
+deliberately excluded from Git.
 
 Smoke/restart dictionary handling was tested separately with a zero-duration
 coupling run. SHA-256 checks confirmed that `system/controlDict` and
