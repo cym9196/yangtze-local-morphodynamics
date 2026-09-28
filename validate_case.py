@@ -82,7 +82,6 @@ expect_vector(
 
 # Values that are nested or vector-valued are checked explicitly.
 required_fragments = {
-    "constant/immersedBodyProperties": ['#include "contactQuadrature"'],
     "constant/bedloadProperties": ["coefShields     1;"],
     "constant/g": ["value      (0 0 -9.80665);"],
     "0_org/U": ["uniform (0.50 0 0);"],
@@ -101,6 +100,17 @@ for relative, fragments in required_fragments.items():
     for fragment in fragments:
         if fragment not in content:
             errors.append(f"{relative}: missing {fragment!r}")
+
+body_dictionary = text("constant/immersedBodyProperties")
+has_contact_include = '#include "contactQuadrature"' in body_dictionary
+has_expanded_contact = all(
+    key in body_dictionary
+    for key in ("contactPoints", "contactNormals", "contactPointAreas")
+)
+if not (has_contact_include or has_expanded_contact):
+    errors.append(
+        "constant/immersedBodyProperties: missing contact quadrature include/fields"
+    )
 
 # Any rank count is valid for production/HPC, but every partition must span z.
 try:

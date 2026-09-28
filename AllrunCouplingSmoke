@@ -10,14 +10,23 @@ fi
 
 set -e
 NPROCS="${NPROCS:-6}"
+SMOKE_ENDTIME="${SMOKE_ENDTIME:-0.0003}"
+
+control_backup=$(mktemp)
+body_backup=$(mktemp)
+cp system/controlDict "$control_backup"
+cp constant/immersedBodyProperties "$body_backup"
 
 restore_production()
 {
-    foamDictionary system/controlDict -entry endTime -set 63 >/dev/null
-    foamDictionary constant/immersedBodyProperties \
-        -entry releaseTime -set 3.0 >/dev/null
-    foamDictionary constant/immersedBodyProperties \
-        -entry sedimentReleaseTime -set 3.0 >/dev/null
+    if [ -f "$control_backup" ]; then
+        cp "$control_backup" system/controlDict
+        rm -f "$control_backup"
+    fi
+    if [ -f "$body_backup" ]; then
+        cp "$body_backup" constant/immersedBodyProperties
+        rm -f "$body_backup"
+    fi
     python3 set_decomposition.py 6 >/dev/null
 }
 trap restore_production EXIT INT TERM
@@ -28,7 +37,7 @@ rm -rf 0 postProcessing
 cp -r 0_org 0
 
 # Release both branches immediately, but integrate only two tiny steps.
-foamDictionary system/controlDict -entry endTime -set 0.0003 >/dev/null
+foamDictionary system/controlDict -entry endTime -set "$SMOKE_ENDTIME" >/dev/null
 foamDictionary constant/immersedBodyProperties \
     -entry releaseTime -set 0 >/dev/null
 foamDictionary constant/immersedBodyProperties \

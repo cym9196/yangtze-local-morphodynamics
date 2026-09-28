@@ -46,6 +46,11 @@ plane. The solver compiled and repeated the same coupled regression with
 identical flat-bed reference forces and exit status 0, as expected before the
 bed develops a slope.
 
+Smoke/restart dictionary handling was tested separately with a zero-duration
+coupling run. SHA-256 checks confirmed that `system/controlDict` and
+`constant/immersedBodyProperties` were restored byte-for-byte, so validation
+runs no longer expand includes or silently reformat production inputs.
+
 The quality-control function objects (`yPlus`, bed `wallShearStress` and
 `fieldMinMax`) were then instantiated in a one-step six-rank solver run. The
 solver recognized the bed patch, advanced normally and exited with status 0;

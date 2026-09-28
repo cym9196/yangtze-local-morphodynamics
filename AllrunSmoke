@@ -11,10 +11,16 @@ set -e
 NPROCS="${NPROCS:-6}"
 SMOKE_ENDTIME="${SMOKE_ENDTIME:-0.0003}"
 
+control_backup=$(mktemp)
+cp system/controlDict "$control_backup"
+
 # Always restore the production end time even if MPI or a solver check fails.
 restore_control()
 {
-    foamDictionary system/controlDict -entry endTime -set 63 >/dev/null
+    if [ -f "$control_backup" ]; then
+        cp "$control_backup" system/controlDict
+        rm -f "$control_backup"
+    fi
     python3 set_decomposition.py 6 >/dev/null
 }
 trap restore_control EXIT INT TERM

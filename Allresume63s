@@ -27,9 +27,15 @@ if [ -z "$latest" ]; then
     exit 1
 fi
 
+control_backup=$(mktemp)
+cp system/controlDict "$control_backup"
+
 restore_start_mode()
 {
-    foamDictionary system/controlDict -entry startFrom -set startTime >/dev/null
+    if [ -f "$control_backup" ]; then
+        cp "$control_backup" system/controlDict
+        rm -f "$control_backup"
+    fi
 }
 trap restore_start_mode EXIT INT TERM
 
