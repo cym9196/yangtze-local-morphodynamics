@@ -7,7 +7,7 @@ FoamFile
     object      turbulenceProperties;
 }
 
-// Depth-based Reynolds number is about 1.10e5, so a RANS baseline is used.
+// Depth-based Reynolds number is about 2.19e4, so a RANS baseline is used.
 simulationType RAS;
 
 RAS

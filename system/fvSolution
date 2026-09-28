@@ -88,13 +88,13 @@ PIMPLE
     nOuterCorrectors           1;
     nCorrectors                2;
     nNonOrthogonalCorrectors   1;
-    pRefPoint                  (0.0625 0.0625 0.1375);
+    pRefPoint                  (0.025 0.025 0.025);
     pRefValue                  0;
 }
 
 potentialFlow
 {
     nNonOrthogonalCorrectors 2;
-    PhiRefPoint (0.0625 0.0625 0.1375);
+    PhiRefPoint (0.025 0.025 0.025);
     PhiRefValue 0;
 }

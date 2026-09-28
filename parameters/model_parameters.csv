@@ -57,6 +57,12 @@ contact,damping ratio,zeta,1.20,-,overdamped baseline,0.8-1.5
 contact,static friction,mu_s,0.52,-,iron-wet sand assumption,0.4-0.65
 contact,dynamic friction,mu_d,0.42,-,iron-wet sand assumption,0.3-0.55
 contact,bearing capacity,q_u,18000,Pa,local wet-sand baseline,site-test required
+retainer,type,,body-only horizontal specimen frame,-,prevents exit from 0.05 m test section,remove only with a longer domain
+retainer,frame stiffness,K_frame,200,N/m,numerically resolved compliant stop,calibrate to physical cage
+retainer,frame damping ratio,zeta_frame,1.20,-,overdamped impact control,0.8-1.5
+retainer,maximum frame force,F_frame_max,2.0,N,numerical safety cap,well above steady drag
+body_damping,linear coefficient,c_linear,0.05,N s/m,0.31 s velocity decay time,calibrate in towing test
+body_damping,angular coefficient,c_angular,3.0e-5,N m s/rad,about 0.02 s angular decay time,calibrate in tip test
 timing,hydrodynamic spin-up,t_spin,3,s,model design,check stationarity
 timing,coupled physical duration,t_run,60,s,user requirement,fixed
 numerics,maximum Courant number,Co_max,0.35,-,stability control,reduce if unstable
@@ -67,6 +73,12 @@ numerics,suspended sediment convection,,upwind,-,bounded robust baseline,numeric
 numerics,PIMPLE outer correctors,nOuter,1,-,baseline,increase for stronger coupling
 numerics,pressure correctors,nCorrectors,2,-,baseline,check continuity
 numerics,nonorthogonal correctors,nNonOrth,1,-,conservative baseline although mesh is orthogonal,could be zero after verification
+numerics,concentration lower bound,Cs_min,0,-,physical volume-fraction bound,hard bound
+numerics,concentration upper bound,Cs_max,0.60,-,bed solid fraction,hard bound
+numerics,maximum bed change per step,dH_max,1e-6,m,0.1 percent of minimum cell,stability guard
+numerics,turbulent kinetic energy bounds,k_bounds,1e-10 to 1.0,m2/s2,wide physical guard,moving-mesh stability
+numerics,specific dissipation bounds,omega_bounds,1 to 1e5,1/s,wide physical guard,moving-mesh stability
+numerics,eddy viscosity maximum,nut_max,0.01,m2/s,wide physical guard,moving-mesh stability
 output,write interval,delta_t_write,2.0,s,disk-limited baseline,32 states over 63 s
 output,format,,binary,-,storage and speed,no binary compression in OpenFOAM
 quality_control,rough-wall resolution,,yPlus,-,written on bed and side walls,inspect after spin-up

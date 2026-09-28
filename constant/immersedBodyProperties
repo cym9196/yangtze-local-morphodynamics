@@ -46,6 +46,31 @@ contactProperties
     #include "contactQuadrature"
 }
 
+// A body-only retaining frame represents the specimen cage in this very short
+// 5 cm test section. Water still enters/exits through the original boundaries.
+// The block remains free inside the frame and can translate, roll and tip.
+retainerProperties
+{
+    min             (0 0 -1);
+    max             (0.05 0.05 1);
+    activeAxes      (1 1 0);
+    stiffness       200;
+    dampingRatio    1.20;
+    maxForce        2.0;
+}
+
+// Safety bounds are deliberately much wider than the expected inlet values
+// (k=9.375e-4 m2/s2, omega=16 1/s, nut~1e-5--1e-3 m2/s). They only prevent a
+// distorted moving-mesh cell from seeding an unbounded RANS feedback loop.
+stabilityProperties
+{
+    kMin        1e-10;
+    kMax        1.0;
+    omegaMin    1.0;
+    omegaMax    1e5;
+    nutMax      0.01;
+}
+
 sixDoFCoeffs
 {
     centreOfMass       (0.025 0.025 0.010);
@@ -60,6 +85,23 @@ sixDoFCoeffs
     accelerationRelaxation 0.3;
     accelerationDamping    1.0;
     report                 no;
+
+    // Small-scale hydrodynamic/contact motion needs resolved dissipation.
+    // These coefficients give about 0.31 s translational and 0.02 s angular
+    // decay times for the 15.74 g iron block, while preserving all six DoF.
+    restraints
+    {
+        translationDamper
+        {
+            sixDoFRigidBodyMotionRestraint linearDamper;
+            coeff 0.05;
+        }
+        rotationDamper
+        {
+            sixDoFRigidBodyMotionRestraint sphericalAngularDamper;
+            coeff 3.0e-5;
+        }
+    }
 
     solver
     {

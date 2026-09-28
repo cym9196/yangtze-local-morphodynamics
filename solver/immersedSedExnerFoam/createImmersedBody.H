@@ -108,6 +108,37 @@ const scalar contactSearchRadius =
 const scalar contactFluidDensity =
     contactProperties.get<scalar>("fluidDensity");
 
+// A body-only retaining frame keeps a freely moving small specimen inside the
+// short laboratory test section.  It does not alter the fluid boundaries.
+const bool useBodyRetainer =
+    immersedBodyProperties.found("retainerProperties");
+vector retainerMin(-GREAT, -GREAT, -GREAT);
+vector retainerMax(GREAT, GREAT, GREAT);
+vector retainerActiveAxes(Zero);
+scalar retainerStiffness = 0;
+scalar retainerDampingRatio = 0;
+scalar retainerMaxForce = GREAT;
+if (useBodyRetainer)
+{
+    const dictionary& retainerProperties =
+        immersedBodyProperties.subDict("retainerProperties");
+    retainerMin = retainerProperties.get<vector>("min");
+    retainerMax = retainerProperties.get<vector>("max");
+    retainerActiveAxes = retainerProperties.get<vector>("activeAxes");
+    retainerStiffness = retainerProperties.get<scalar>("stiffness");
+    retainerDampingRatio =
+        retainerProperties.get<scalar>("dampingRatio");
+    retainerMaxForce = retainerProperties.get<scalar>("maxForce");
+}
+
+const dictionary& stabilityProperties =
+    immersedBodyProperties.subDict("stabilityProperties");
+const scalar kFieldMin = stabilityProperties.get<scalar>("kMin");
+const scalar kFieldMax = stabilityProperties.get<scalar>("kMax");
+const scalar omegaFieldMin = stabilityProperties.get<scalar>("omegaMin");
+const scalar omegaFieldMax = stabilityProperties.get<scalar>("omegaMax");
+const scalar nutFieldMax = stabilityProperties.get<scalar>("nutMax");
+
 const dictionary& sixDoFCoeffs =
     immersedBodyProperties.subDict("sixDoFCoeffs");
 

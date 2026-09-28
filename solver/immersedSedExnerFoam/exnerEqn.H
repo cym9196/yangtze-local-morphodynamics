@@ -114,6 +114,35 @@ if (filterExner)
     }
 }
 
+// Morphodynamic CFL guard.  The transport equations remain conservative in
+// their normal range; only a source spike large enough to move the bed by more
+// than 1% of a 1 mm cell in one CFD step is clipped.
+scalar maxRawBedChange = 0;
+label limitedBedFaces = 0;
+forAll(dH, facei)
+{
+    const scalar rawBedChange = dH[facei];
+    maxRawBedChange = max(maxRawBedChange, mag(rawBedChange));
+    dH[facei] =
+        min
+        (
+            max(rawBedChange, -maxBedChangePerStep),
+            maxBedChangePerStep
+        );
+    if (mag(dH[facei] - rawBedChange) > SMALL)
+    {
+        ++limitedBedFaces;
+    }
+}
+reduce(maxRawBedChange, maxOp<scalar>());
+reduce(limitedBedFaces, sumOp<label>());
+if (limitedBedFaces > 0)
+{
+    Info<< "morphodynamic limiter: faces=" << limitedBedFaces
+        << " rawMax=" << maxRawBedChange
+        << " limitedMax=" << maxBedChangePerStep << " m" << endl;
+}
+
 if (bed.bedMotion())
 {
     #include "meshMove.H"

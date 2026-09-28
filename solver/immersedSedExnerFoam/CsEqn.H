@@ -222,6 +222,13 @@ else if (switchMULES=="off")
     fvOptions.correct(Cs);
 }
 
+// The classical implicit transport solve is not inherently bounded.  Enforce
+// the physical volume-fraction interval before settling and Exner exchange so
+// a small undershoot cannot grow into a negative-concentration instability.
+Cs.max(dimensionedScalar("CsLowerBound", dimless, 0.0));
+Cs.min(CsMax);
+Cs.correctBoundaryConditions();
+
 Ws = settlingModelPtr->Ufall(
     Cs, CsMax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
 

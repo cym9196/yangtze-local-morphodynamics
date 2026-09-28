@@ -47,6 +47,8 @@ if (runTime.value() >= bodyReleaseTime)
 }
 
 Info<< "immersed body: centre=" << bodyMotion.centreOfMass()
+    << " velocity=" << bodyMotion.v()
+    << " omega=" << bodyMotion.omega()
     << " force=" << hydroForce
     << " contact=" << contactForce
     << " moment=" << hydroMoment + contactMoment << endl;

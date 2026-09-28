@@ -59,6 +59,7 @@ checks = [
     ("constant/transportProperties", "nu", 1.14e-6),
     ("constant/transportProperties", "rhoF", 999.0),
     ("constant/bedloadProperties", "morphoAccFactor", 1.0),
+    ("constant/bedloadProperties", "maxBedChangePerStep", 1.0e-6),
     ("constant/immersedBodyProperties", "penaltyTime", 2.0e-4),
     ("constant/immersedBodyProperties", "interfaceThickness", 1.0e-3),
     ("constant/immersedBodyProperties", "releaseTime", 3.0),
@@ -66,6 +67,14 @@ checks = [
     ("constant/immersedBodyProperties", "mass", 0.01574),
     ("constant/immersedBodyProperties", "staticFriction", 0.52),
     ("constant/immersedBodyProperties", "dynamicFriction", 0.42),
+    ("constant/immersedBodyProperties", "stiffness", 200.0),
+    ("constant/immersedBodyProperties", "maxForce", 2.0),
+    ("constant/immersedBodyProperties", "coeff", 0.05),
+    ("constant/immersedBodyProperties", "kMin", 1.0e-10),
+    ("constant/immersedBodyProperties", "kMax", 1.0),
+    ("constant/immersedBodyProperties", "omegaMin", 1.0),
+    ("constant/immersedBodyProperties", "omegaMax", 1.0e5),
+    ("constant/immersedBodyProperties", "nutMax", 0.01),
     ("system/controlDict", "endTime", 63.0),
     ("system/controlDict", "maxCo", 0.35),
     ("system/controlDict", "maxDeltaT", 5.0e-4),
@@ -75,6 +84,9 @@ for item in checks:
 
 expect_vector("constant/immersedBodyProperties", "halfSize", (0.005, 0.005, 0.010))
 expect_vector("constant/immersedBodyProperties", "centreOfMass", (0.025, 0.025, 0.010))
+expect_vector("constant/immersedBodyProperties", "min", (0.0, 0.0, -1.0))
+expect_vector("constant/immersedBodyProperties", "max", (0.05, 0.05, 1.0))
+expect_vector("constant/immersedBodyProperties", "activeAxes", (1.0, 1.0, 0.0))
 expect_vector(
     "constant/immersedBodyProperties",
     "momentOfInertia",
@@ -84,6 +96,11 @@ expect_vector(
 # Values that are nested or vector-valued are checked explicitly.
 required_fragments = {
     "constant/bedloadProperties": ["coefShields     1;"],
+    "constant/immersedBodyProperties": [
+        "sixDoFRigidBodyMotionRestraint linearDamper;",
+        "sixDoFRigidBodyMotionRestraint sphericalAngularDamper;",
+        "coeff 3.0e-5;",
+    ],
     "constant/g": ["value      (0 0 -9.80665);"],
     "0_org/U": ["uniform (0.50 0 0);"],
     "0_org/k": ["uniform 9.375e-4;"],
@@ -91,6 +108,7 @@ required_fragments = {
     "0_org/nut": ["nutkRoughWallFunction", "Ks    uniform 5.75e-4;"],
     "0_org/finite-area/rigidBed": ["internalField uniform (0 0 -0.05);"],
     "system/decomposeParDict": ["method hierarchical;"],
+    "system/fvSolution": ["pRefPoint                  (0.025 0.025 0.025);"],
     "system/controlDict": [
         "type            yPlus;",
         "type            wallShearStress;",

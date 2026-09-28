@@ -159,3 +159,69 @@ forAll(refContactPoints, pointI)
     contactMoment +=
         (contactPoint - bodyMotion.centreOfMass()) ^ pointForce;
 }
+
+// Body-only retaining frame at the horizontal test-section limits.  The
+// cuboid remains free to translate, roll and overturn inside the frame, but
+// cannot leave the 0.05 x 0.05 m bed and subsequently fall without contact.
+if (useBodyRetainer)
+{
+    const scalar retainerDamping =
+        2.0*retainerDampingRatio
+       *Foam::sqrt
+        (
+            doubleScalar(max(retainerStiffness*bodyMotion.mass(), SMALL))
+        );
+
+    for (direction axis = 0; axis < 3; ++axis)
+    {
+        if (retainerActiveAxes[axis] <= 0.5)
+        {
+            continue;
+        }
+
+        for (label side = 0; side < 2; ++side)
+        {
+            scalar extreme = side == 0 ? GREAT : -GREAT;
+            point extremePoint(Zero);
+
+            forAll(refContactPoints, pointI)
+            {
+                const point currentPoint =
+                    bodyMotion.transform(refContactPoints[pointI]);
+                if
+                (
+                    (side == 0 && currentPoint[axis] < extreme)
+                 || (side == 1 && currentPoint[axis] > extreme)
+                )
+                {
+                    extreme = currentPoint[axis];
+                    extremePoint = currentPoint;
+                }
+            }
+
+            vector wallNormal(Zero);
+            wallNormal[axis] = side == 0 ? 1.0 : -1.0;
+            const scalar penetration = side == 0
+                ? retainerMin[axis] - extreme
+                : extreme - retainerMax[axis];
+
+            if (penetration <= 0)
+            {
+                continue;
+            }
+
+            const scalar normalVelocity =
+                bodyMotion.velocity(extremePoint) & wallNormal;
+            scalar normalForce =
+                retainerStiffness*penetration
+              - retainerDamping*normalVelocity;
+            normalForce =
+                min(max(normalForce, scalar(0)), retainerMaxForce);
+
+            const vector frameForce = normalForce*wallNormal;
+            contactForce += frameForce;
+            contactMoment +=
+                (extremePoint - bodyMotion.centreOfMass()) ^ frameForce;
+        }
+    }
+}

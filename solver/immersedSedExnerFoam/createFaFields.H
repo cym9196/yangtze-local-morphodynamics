@@ -109,6 +109,21 @@ morphoAccFactor =
 Info << "morphological acceleration factor is set to: "
 << morphoAccFactor << endl;
 
+// Explicit morphology must not move the bed by a significant fraction of a
+// minimum cell in one CFD step, even during a transient source spike.
+const scalar maxBedChangePerStep =
+    bedloadProperties.lookupOrDefault<scalar>
+    (
+        "maxBedChangePerStep",
+        1.0e-5
+    );
+if (maxBedChangePerStep <= 0)
+{
+    FatalError << "maxBedChangePerStep must be positive" << endl;
+    Info << abort(FatalError) << endl;
+}
+Info << "maximum bed change per step: " << maxBedChangePerStep << " m" << endl;
+
 // list of patch to apply zeroDisplacements condition
 List<word> fixedFaPatchNames;
 
@@ -152,7 +167,7 @@ if (bed.exist())
     
     word switchFilterExner =
         bedloadProperties.lookupOrDefault<word>("filterExner", "off");
-    if (switchFilterShields == "on")
+    if (switchFilterExner == "on")
     {
         filterExner = true;
         //alphaExn = bedloadProperties.lookupOrDefault<scalar>(
@@ -164,7 +179,7 @@ if (bed.exist())
     {
         FatalError << "in bedloadProperties,"
             << "wrong keyword for entry filterExner "
-            << switchFilterShields
+            << switchFilterExner
             << "\nvalid options are: on off" << endl;
             Info << abort(FatalError) << endl;
     }

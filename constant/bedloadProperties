@@ -43,6 +43,9 @@ criticalShieldsModel
 // One CFD second equals one physical second.
 morphoAccFactor 1;
 
+// Explicit Exner stability guard: at most 0.1% of a 1 mm cell per CFD step.
+maxBedChangePerStep 1e-6;
+
 filterExner      off;
 alphaFiltExner  0.1;
 NfiltExner      1;
