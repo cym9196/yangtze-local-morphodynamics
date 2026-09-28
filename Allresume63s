@@ -1,0 +1,49 @@
+#!/bin/sh
+# Continue an interrupted decomposed 63 s production run without deleting data.
+
+cd "${0%/*}" || exit 1
+
+if [ -z "${WM_PROJECT_DIR:-}" ]; then
+    . /usr/lib/openfoam/openfoam2412/etc/bashrc
+fi
+
+set -e
+NPROCS="${NPROCS:-6}"
+
+# A restart must use exactly the same number of partitions as the saved run.
+count=0
+for directory in processor[0-9]*; do
+    [ -d "$directory" ] && count=$((count + 1))
+done
+if [ "$count" -ne "$NPROCS" ]; then
+    echo "Found $count processor directories but NPROCS=$NPROCS." >&2
+    echo "Use the original MPI count or reconstruct and decompose again." >&2
+    exit 1
+fi
+
+latest=$(foamListTimes -processor -latestTime 2>/dev/null || true)
+if [ -z "$latest" ]; then
+    echo "No decomposed restart time was found." >&2
+    exit 1
+fi
+
+restore_start_mode()
+{
+    foamDictionary system/controlDict -entry startFrom -set startTime >/dev/null
+}
+trap restore_start_mode EXIT INT TERM
+
+foamDictionary system/controlDict -entry startFrom -set latestTime >/dev/null
+foamDictionary system/controlDict -entry endTime -set 63 >/dev/null
+
+echo "Continuing from physical time $latest with $NPROCS ranks"
+if [ -n "${SLURM_JOB_ID:-}" ]; then
+    srun immersedSedExnerFoam -parallel \
+        >> log.immersedSedExnerFoam.63s 2>&1
+else
+    mpirun ${MPI_EXTRA_ARGS:-} -np "$NPROCS" \
+        immersedSedExnerFoam -parallel \
+        >> log.immersedSedExnerFoam.63s 2>&1
+fi
+
+reconstructPar -latestTime > log.reconstructPar 2>&1

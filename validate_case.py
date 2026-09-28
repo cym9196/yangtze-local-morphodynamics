@@ -88,17 +88,31 @@ required_fragments = {
     "0_org/k": ["uniform 9.375e-4;"],
     "0_org/omega": ["uniform 3.2;"],
     "0_org/nut": ["nutkRoughWallFunction", "Ks    uniform 5.75e-4;"],
-    "system/decomposeParDict": [
-        "numberOfSubdomains 6;",
-        "method hierarchical;",
-        "n       (3 2 1);",
-    ],
+    "system/decomposeParDict": ["method hierarchical;"],
 }
 for relative, fragments in required_fragments.items():
     content = text(relative)
     for fragment in fragments:
         if fragment not in content:
             errors.append(f"{relative}: missing {fragment!r}")
+
+# Any rank count is valid for production/HPC, but every partition must span z.
+try:
+    nprocs = int(scalar("system/decomposeParDict", "numberOfSubdomains"))
+    split_match = re.search(
+        r"(?m)^\s*n\s+\((\d+)\s+(\d+)\s+(\d+)\)\s*;",
+        text("system/decomposeParDict"),
+    )
+    if not split_match:
+        errors.append("system/decomposeParDict: cannot parse hierarchical n")
+    else:
+        nx, ny, nz = (int(value) for value in split_match.groups())
+        if nx * ny * nz != nprocs:
+            errors.append("system/decomposeParDict: split product does not equal rank count")
+        if nz != 1:
+            errors.append("system/decomposeParDict: nz must be 1 so every rank owns bed faces")
+except ValueError as exc:
+    errors.append(str(exc))
 
 # Independent derived-value audit.
 u, depth, nu, gravity = 0.50, 0.25, 1.14e-6, 9.80665

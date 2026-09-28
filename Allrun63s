@@ -14,6 +14,17 @@ set -e
 NPROCS="${NPROCS:-6}"
 SKIP_MESH="${SKIP_MESH:-0}"
 
+# Reject inconsistent production dictionaries before spending days of CPU.
+python3 validate_case.py
+
+# The decomposed history plus final reconstruction needs substantial scratch.
+available_kb=$(df -Pk . | awk 'NR==2 {print $4}')
+required_kb=$((20 * 1024 * 1024))
+if [ "$available_kb" -lt "$required_kb" ]; then
+    echo "At least 20 GiB free space is required; refusing to start." >&2
+    exit 1
+fi
+
 if [ "$SKIP_MESH" != "1" ]; then
     ./Allmesh
 fi

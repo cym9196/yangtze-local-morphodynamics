@@ -78,15 +78,17 @@ python3 validate_case.py
 
 # 第五步：查看进度；Time 是当前物理时刻，最终应为 63。
 tail -f log.immersedSedExnerFoam.63s
+
+# 随时查看是否在运行、最新物理时刻、耦合进度和剩余磁盘
+./status_run.sh
 ```
 
 `Allrun63s` 每 2 s 以二进制保存一次分区结果，并只重构最终时刻，以避免当前
-Ubuntu 的磁盘被写满。计算中断后不要重新建网格，可从最新时刻继续：
+Ubuntu 的磁盘被写满。脚本会在可用空间不足 20 GiB 时拒绝启动。计算中断后
+不要重新建网格，直接用保留原 MPI 数量的续算脚本：
 
 ```bash
-sed -i 's/startFrom       startTime;/startFrom       latestTime;/' system/controlDict
-mpirun -np 6 immersedSedExnerFoam -parallel \
-  >> log.immersedSedExnerFoam.63s 2>&1
+NPROCS=6 ./Allresume63s
 ```
 
 `set_decomposition.py` 会自动采用只沿水平面划分的 `3×2×1` 分区，因此 6 个

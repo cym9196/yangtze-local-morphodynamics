@@ -3,5 +3,6 @@
 *.sh text eol=lf
 Allmesh text eol=lf
 Allrun* text eol=lf
+status_run.sh text eol=lf
 system/blockMeshDict text eol=lf
 system/decomposeParDict text eol=lf
