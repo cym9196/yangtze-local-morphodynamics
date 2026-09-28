@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the Exner interface as a closed 0.25 m-deep sand volume.
+"""Render the Exner interface as a closed 0.05 m-deep sand volume.
 
 The calculation still evolves a morphodynamic surface.  This renderer closes
 that measured surface with four vertical walls and a bottom face, so the sand
@@ -26,6 +26,10 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection, Poly3DCollection
 
 
 NUMBER = re.compile(r"[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?")
+DOMAIN_LENGTH = 0.05
+DOMAIN_WIDTH = 0.05
+WATER_DEPTH = 0.05
+SEDIMENT_DEPTH = 0.05
 
 
 def find_named_block(dataset, wanted: str):
@@ -83,13 +87,13 @@ def nearest_pose(rows, time_value):
 
 
 def transformed_cuboid(centre, rotation, exaggeration):
-    initial_centre = np.array([0.25, 0.25, 0.10])
+    initial_centre = np.array([0.025, 0.025, 0.010])
     corners = np.array(
         [
-            [0.20, 0.20, 0.00], [0.30, 0.20, 0.00],
-            [0.30, 0.30, 0.00], [0.20, 0.30, 0.00],
-            [0.20, 0.20, 0.20], [0.30, 0.20, 0.20],
-            [0.30, 0.30, 0.20], [0.20, 0.30, 0.20],
+            [0.020, 0.020, 0.000], [0.030, 0.020, 0.000],
+            [0.030, 0.030, 0.000], [0.020, 0.030, 0.000],
+            [0.020, 0.020, 0.020], [0.030, 0.020, 0.020],
+            [0.030, 0.030, 0.020], [0.020, 0.030, 0.020],
         ]
     )
     moved = centre + (rotation @ (corners - initial_centre).T).T
@@ -102,10 +106,12 @@ def transformed_cuboid(centre, rotation, exaggeration):
     return [moved[list(face)] for face in indices]
 
 
-def sand_side_faces(points, bottom=-0.25):
+def sand_side_faces(points, bottom=-SEDIMENT_DEPTH):
     faces = []
-    for axis, value, sort_axis in ((0, 0.0, 1), (0, 0.5, 1),
-                                   (1, 0.0, 0), (1, 0.5, 0)):
+    for axis, value, sort_axis in (
+        (0, 0.0, 1), (0, DOMAIN_LENGTH, 1),
+        (1, 0.0, 0), (1, DOMAIN_WIDTH, 0),
+    ):
         edge = points[np.isclose(points[:, axis], value, atol=1.0e-7)]
         edge = edge[np.argsort(edge[:, sort_axis])]
         for first, second in zip(edge[:-1], edge[1:]):
@@ -117,10 +123,12 @@ def sand_side_faces(points, bottom=-0.25):
     return faces
 
 
-def tank_edges(bottom=-0.25, top=0.25):
+def tank_edges(bottom=-SEDIMENT_DEPTH, top=WATER_DEPTH):
     corners = np.array([
-        [0, 0, bottom], [.5, 0, bottom], [.5, .5, bottom], [0, .5, bottom],
-        [0, 0, top], [.5, 0, top], [.5, .5, top], [0, .5, top],
+        [0, 0, bottom], [DOMAIN_LENGTH, 0, bottom],
+        [DOMAIN_LENGTH, DOMAIN_WIDTH, bottom], [0, DOMAIN_WIDTH, bottom],
+        [0, 0, top], [DOMAIN_LENGTH, 0, top],
+        [DOMAIN_LENGTH, DOMAIN_WIDTH, top], [0, DOMAIN_WIDTH, top],
     ])
     pairs = [(0, 1), (1, 2), (2, 3), (3, 0),
              (4, 5), (5, 6), (6, 7), (7, 4),
@@ -169,8 +177,11 @@ def main():
         ax = fig.add_subplot(111, projection="3d", computed_zorder=False)
         ax.set_facecolor("#eef4f8")
 
-        bottom_face = [[(0, 0, -.25), (.5, 0, -.25),
-                        (.5, .5, -.25), (0, .5, -.25)]]
+        bottom_face = [[
+            (0, 0, -SEDIMENT_DEPTH), (DOMAIN_LENGTH, 0, -SEDIMENT_DEPTH),
+            (DOMAIN_LENGTH, DOMAIN_WIDTH, -SEDIMENT_DEPTH),
+            (0, DOMAIN_WIDTH, -SEDIMENT_DEPTH),
+        ]]
         ax.add_collection3d(Poly3DCollection(
             bottom_face, facecolors="#8a6138", edgecolors="#5b3b22",
             linewidths=.4, alpha=1.0, zorder=2
@@ -189,7 +200,11 @@ def main():
             facecolors="#60676f", edgecolors="#171b20",
             linewidths=.55, alpha=1.0, zorder=9
         ))
-        water = [[(0, 0, .25), (.5, 0, .25), (.5, .5, .25), (0, .5, .25)]]
+        water = [[
+            (0, 0, WATER_DEPTH), (DOMAIN_LENGTH, 0, WATER_DEPTH),
+            (DOMAIN_LENGTH, DOMAIN_WIDTH, WATER_DEPTH),
+            (0, DOMAIN_WIDTH, WATER_DEPTH),
+        ]]
         ax.add_collection3d(Poly3DCollection(
             water, facecolors="#4db4eb", edgecolors="none", alpha=.10, zorder=1
         ))
@@ -198,17 +213,17 @@ def main():
         ))
 
         ax.set_title(
-            f"5 mm immersed-boundary scour     t = {time_value:05.2f} s\n"
+            f"1--25 mm immersed-boundary scour     t = {time_value:05.2f} s\n"
             "0.50 m/s Yangtze flow | iron block | movable Exner bed",
             fontsize=14, pad=13, color="#17232e"
         )
         ax.set_xlabel("x / m", labelpad=7)
         ax.set_ylabel("y / m", labelpad=7)
         ax.set_zlabel("display z / m", labelpad=5)
-        ax.set_xlim(0, .5)
-        ax.set_ylim(0, .5)
-        ax.set_zlim(-.25, .25)
-        ax.set_box_aspect((1, 1, 1))
+        ax.set_xlim(0, DOMAIN_LENGTH)
+        ax.set_ylim(0, DOMAIN_WIDTH)
+        ax.set_zlim(-SEDIMENT_DEPTH, .055)
+        ax.set_box_aspect((DOMAIN_LENGTH, DOMAIN_WIDTH, .105))
         ax.view_init(elev=25, azim=-58)
         ax.grid(False)
 

@@ -47,5 +47,5 @@ filterExner      off;
 alphaFiltExner  0.1;
 NfiltExner      1;
 
-// A rigid layer is 0.25 m below the initial bed (defined in rigidBed).
+// A rigid layer is 0.05 m below the initial bed (defined in rigidBed).
 rigidBed on;

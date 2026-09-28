@@ -5,13 +5,13 @@ Test host: Ubuntu/OpenFOAM v2412, AMD Ryzen 5 7500F (6 physical cores),
 
 ## Mesh verification
 
-- volume cells: 3,072,832;
-- finite-area bed faces: 23,104;
-- bounding box: 0.50 x 0.50 x 0.25 m;
+- volume cells: 35,840;
+- finite-area bed faces: 1,024;
+- water-mesh bounding box: 0.05 x 0.05 x 0.05 m;
 - minimum/maximum cell volume: 1e-9 / 6.25e-6 m3;
-- maximum aspect ratio: 25;
+- maximum aspect ratio: 4.075;
 - maximum/average non-orthogonality: 0 / 0 deg;
-- maximum skewness: 5.54e-13;
+- maximum skewness: 5.93e-14;
 - `checkMesh`: Mesh OK;
 - `checkFaMesh`: completed successfully.
 
@@ -21,24 +21,26 @@ The basic smoke test advanced two parallel steps and exited with status 0.
 The coupled smoke test then forced both release times to zero and verified, in
 the same run:
 
-- suspension equation: `Max(Cs)=8.80e-4` after two steps;
-- moving Exner bed: maximum vertex motion `3.34e-6 m` in the latest regression;
-- six-DoF body: centre changed from `(0.25 0.25 0.10)` to
-  `(0.25000281 0.25 0.099999807)`;
+- suspension equation: `Max(Cs)=8.91e-4` after two steps;
+- moving Exner bed: maximum vertex motion `1.29e-6 m` in the latest regression;
+- six-DoF body: centre changed from `(0.025 0.025 0.010)` to
+  `(0.025003456 0.025 0.0099998236)`;
 - six-face contact force was finite and included tangential friction
-  `(-0.0846, 0, 19.8656) N` after the second regression step;
+  `(-3.31e-4, 0, 0.02132) N` after the second regression step;
+- buoyancy was integrated from the actually submerged body-mask volume
+  (about 2e-6 m3) and remains pose dependent;
 - parallel run exited with status 0 and no swap activity;
-- latest final-regression elapsed time was 84.34 s for two coupled start-up
+- latest 5 cm regression elapsed time was 2.21 s for two coupled start-up
   steps; `/usr/bin/time` returned exit status 0.
 
 The production release times (`3 s`) and production end time (`63 s`) were
 automatically restored after the test.
 
-The orientation-aware contact upgrade was compiled with OpenFOAM v2412 and
-passed a fresh two-step, six-rank fully coupled regression: suspension reached
-`Max(Cs)=8.80e-4`, the Exner bed moved, the body translated, and the solver
+The orientation-aware contact and partial-submergence upgrades were compiled
+with OpenFOAM v2412 and passed a fresh two-step, six-rank fully coupled
+regression: suspension reached `Max(Cs)=8.91e-4`, the Exner bed moved, the body translated, and the solver
 exited with status 0. The quadrature verifier independently confirms 54 points,
-0.10 m2 total cuboid surface area, 0.01 m2 top/bottom faces and 0.02 m2 long
+0.001 m2 total cuboid surface area, 0.0001 m2 top/bottom faces and 0.0002 m2 long
 side faces.
 
 The contact gap and support/friction directions were subsequently upgraded
@@ -47,9 +49,9 @@ plane. The solver compiled and repeated the same coupled regression with
 identical flat-bed reference forces and exit status 0, as expected before the
 bed develops a slope.
 
-The authoritative remote evidence is preserved as
-`log.couplingSmoke.finalRegression`,
-`log.couplingSmoke.resources.finalRegression` and `finalRegression.sha256` in
+The authoritative remote evidence for the resized case is preserved as
+`log.couplingSmoke.5cmRegression`,
+`log.couplingSmoke.resources.5cmRegression` and `5cmRegression.sha256` in
 the Ubuntu case directory; it is not committed because runtime logs are
 deliberately excluded from Git.
 
@@ -71,23 +73,20 @@ x/y split with `nz=1`, so every process spans the depth and owns bed faces.
 
 | configuration | decomposition | two-step wall time | result |
 |---|---:|---:|---|
-| 6 physical cores | 3 x 2 x 1 | 82.32 s | selected |
-| 12 hardware threads | 4 x 3 x 1 | 93.15 s | slower |
+| 6 physical cores | 3 x 2 x 1 | 2.21 s | selected |
 
-At 12 ranks the maximum bed-face count was only 0.66% above the mean, proving
-that the finite-area work was balanced. Six physical cores are retained as the
-desktop default because simultaneous multithreading added overhead.
+The earlier, larger 0.50 m case showed that 12 hardware threads were slower
+than six physical cores. Six physical cores are therefore retained as the
+desktop default; any HPC layout still requires a fresh strong-scaling test.
 
 ## Full-run feasibility on this host
 
 At a 1 mm minimum cell and 0.50 m/s flow, `maxDeltaT=0.0005 s` implies at
 least 126,000 steps for 63 s. Startup timing is pessimistic, but it projects
-roughly 3--8 weeks of uninterrupted wall time on this six-core CPU. The mesh
-itself fits in memory (observed total system use about 8 GiB), but the current
-machine is a validation/pilot host, not an efficient production host for this
-resolution.
+roughly 1--2 days of uninterrupted wall time on this six-core CPU. This is a
+start-up extrapolation rather than a guarantee; the new 35,840-cell mesh easily
+fits on the current desktop host.
 
-A practical production target is a Linux HPC node or allocation with at least
-64 CPU cores, 128 GiB RAM and 100 GiB scratch space. Actual strong-scaling and
-storage behavior must be measured with a 0.1 s benchmark before submitting the
-63 s job.
+The local Ubuntu host is now a practical production target. HPC is optional;
+if used, strong-scaling should be measured first because 64 MPI ranks would be
+excessive for only 35,840 cells.

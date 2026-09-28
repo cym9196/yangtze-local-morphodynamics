@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Generate six-face contact quadrature for the 0.10 x 0.10 x 0.20 m block."""
+"""Generate six-face contact quadrature for the 0.01 x 0.01 x 0.02 m block."""
 
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "constant" / "contactQuadrature"
-CENTRE = (0.25, 0.25, 0.10)
-HALF = (0.05, 0.05, 0.10)
+CENTRE = (0.025, 0.025, 0.010)
+HALF = (0.005, 0.005, 0.010)
 
 # Three-point trapezoidal coordinates and normalized 1D weights. Their tensor
 # product integrates a constant pressure to exactly the geometric face area.

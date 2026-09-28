@@ -7,18 +7,18 @@ FoamFile
     object      immersedBodyProperties;
 }
 
-// Analytic homogeneous iron cuboid, 0.10 x 0.10 x 0.20 m.
-halfSize                  (0.05 0.05 0.10);
+// Analytic homogeneous iron cuboid, 0.01 x 0.01 x 0.02 m.
+halfSize                  (0.005 0.005 0.010);
 
 // Brinkman relaxation and a two-cell transition on the 1 mm core mesh.
 penaltyTime               0.0002;
-interfaceThickness        0.0020;
+interfaceThickness        0.0010;
 
 // The central 70% of the footprint is protected from artificial Exner shear;
 // the 15 mm edge band remains active so hydraulic undercutting can occur.
 sedimentMaskHalfFraction  0.70;
 
-// Hold the block fixed for the first second so the immersed-boundary flow
+// Hold the block fixed during the 3 s spin-up so the immersed-boundary flow
 // can establish without applying a non-physical start-up impulse.
 releaseTime               3.0;
 sedimentReleaseTime       3.0;
@@ -27,7 +27,7 @@ sedimentReleaseTime       3.0;
 // through translation/rotation; nearest bed elevation is reduced across MPI.
 contactProperties
 {
-    contactArea          0.01;
+    contactArea          0.0001;
     // A compliant, over-damped dense-sand foundation.  This avoids the
     // non-physical rebound produced by treating the bed like a steel plate.
     foundationStiffness  5.0e6;
@@ -36,9 +36,9 @@ contactProperties
     dynamicFriction      0.42;
     frictionVelocity     0.01;
     bearingCapacity      1.8e4;
-    searchRadius         0.015;
+    searchRadius         0.003;
 
-    displacedVolume      0.002;
+    // Buoyancy uses the body-mask volume actually inside the water mesh.
     fluidDensity         999;
 
     // Generated six-face quadrature: points, outward body-frame normals and
@@ -48,9 +48,9 @@ contactProperties
 
 sixDoFCoeffs
 {
-    centreOfMass       (0.25 0.25 0.10);
-    mass               15.74;
-    momentOfInertia    (0.0655833 0.0655833 0.0262333);
+    centreOfMass       (0.025 0.025 0.010);
+    mass               0.01574;
+    momentOfInertia    (6.55833e-7 6.55833e-7 2.62333e-7);
     velocity           (0 0 0);
     acceleration       (0 0 0);
     angularMomentum    (0 0 0);

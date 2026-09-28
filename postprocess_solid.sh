@@ -1,5 +1,5 @@
 #!/bin/sh
-# Export every reconstructed bed surface and render the 0.25 m-deep solid
+# Export every reconstructed bed surface and render the 0.05 m-deep solid
 # sand layer. Run this after reconstructing the desired MPI time directories.
 
 cd "${0%/*}" || exit 1

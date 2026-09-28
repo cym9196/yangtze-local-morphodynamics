@@ -7,16 +7,16 @@ FoamFile
     object      omega;
 }
 
-// omega from 5% turbulence intensity and a 0.0175 m turbulence length scale.
+// omega from 5% turbulence intensity and a 0.0035 m turbulence length scale.
 dimensions    [0 0 -1 0 0 0 0];
-internalField uniform 3.2;
+internalField uniform 16.0;
 
 boundaryField
 {
     inlet
     {
         type  fixedValue;
-        value uniform 3.2;
+        value uniform 16.0;
     }
     outlet
     {
@@ -29,11 +29,11 @@ boundaryField
     bed
     {
         type  omegaWallFunction;
-        value uniform 3.2;
+        value uniform 16.0;
     }
     sideWalls
     {
         type  omegaWallFunction;
-        value uniform 3.2;
+        value uniform 16.0;
     }
 }

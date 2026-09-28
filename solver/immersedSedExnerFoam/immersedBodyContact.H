@@ -2,11 +2,21 @@
   Parallel-safe multi-point Winkler/Coulomb contact with the Exner bed.
 \*---------------------------------------------------------------------------*/
 
+// Integrate the smoothed mask only over the water mesh.  Unlike a fixed full
+// cuboid volume, this remains correct if the block later changes its
+// submergence or orientation.
+scalar currentDisplacedVolume = 0;
+forAll(cellVolumes, cellI)
+{
+    currentDisplacedVolume += bodyMask[cellI]*cellVolumes[cellI];
+}
+reduce(currentDisplacedVolume, sumOp<scalar>());
+
 contactForce = vector
 (
     0,
     0,
-    contactFluidDensity*displacedVolume*mag(g.value())
+    contactFluidDensity*currentDisplacedVolume*mag(g.value())
 );
 contactMoment = Zero;
 

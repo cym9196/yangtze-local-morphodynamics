@@ -1,8 +1,9 @@
 group,parameter,symbol,value,unit,status_or_source,uncertainty_or_range
-geometry,domain length,L,0.50,m,user requirement,fixed
-geometry,domain width,W,0.50,m,user requirement,fixed
-geometry,water depth,H,0.25,m,user requirement,fixed
-geometry,initial sediment thickness,Hs,0.25,m,user requirement,fixed
+geometry,domain length,L,0.05,m,user requirement,fixed
+geometry,domain width,W,0.05,m,user requirement,fixed
+geometry,water depth,H,0.05,m,user requirement,fixed
+geometry,initial sediment thickness,Hs,0.05,m,user requirement,fixed
+geometry,total tank height,H_total,0.10,m,water plus sediment,fixed
 mesh,minimum cell size,delta_min,0.001,m,user requirement,critical zone
 mesh,maximum cell size,delta_max,0.025,m,user requirement,far field
 flow,bulk inlet velocity,U,0.50,m/s,user requirement,calibrate from ADCP profile
@@ -10,14 +11,14 @@ flow,water temperature,T,15,degC,engineering baseline,season dependent
 flow,water density,rho_f,999,kg/m3,fresh water at 15 degC,997-1000
 flow,kinematic viscosity,nu,1.14e-6,m2/s,fresh water at 15 degC,temperature dependent
 flow,gravity,g,9.80665,m/s2,standard gravity,fixed
-flow,depth Reynolds number,Re_H,1.096e5,-,U*H/nu,derived
-flow,Froude number,Fr,0.319,-,U/sqrt(g*H),subcritical
+flow,depth Reynolds number,Re_H,2.193e4,-,U*H/nu,derived
+flow,Froude number,Fr,0.714,-,U/sqrt(g*H),subcritical near free-surface-sensitive regime
 turbulence,model,,k-omega SST,-,OpenFOAM RANS baseline,compare with LES in validation
 turbulence,inlet intensity,I,0.05,-,engineering baseline,0.03-0.10
-turbulence,length scale,l,0.0175,m,0.07 water depth,site dependent
+turbulence,length scale,l,0.0035,m,0.07 water depth,site dependent
 turbulence,inlet kinetic energy,k,9.375e-4,m2/s2,derived from U and I,-
-turbulence,inlet omega,omega,3.2,1/s,derived baseline,-
-free_surface,treatment,,rigid-lid symmetry,-,Fr=0.319 subcritical baseline,VOF needed for waves
+turbulence,inlet omega,omega,16.0,1/s,derived baseline,-
+free_surface,treatment,,rigid-lid symmetry,-,Fr=0.714 subcritical baseline,VOF recommended for quantitative free-surface effects
 sediment,bed material density,rho_s,2650,kg/m3,quartz baseline,2600-2700
 sediment,provisional d10,d10,0.00010,m,sensitivity endpoint not a measured quantile,replace with sieve data
 sediment,bed d50,d50,0.00023,m,Yangtze representative baseline,0.00010-0.00040
@@ -35,17 +36,20 @@ suspension,observed SSC sensitivity low,SSC_low,0.10,kg/m3,2015 Yangtze-estuary 
 suspension,observed SSC sensitivity baseline,SSC_mid,0.16,kg/m3,Datong 2000-2020 annual mean scenario,not directly applied
 suspension,observed SSC sensitivity high,SSC_high,0.32,kg/m3,2008-2014 Yangtze-estuary scenario,not directly applied
 body,material,,homogeneous iron,-,user requirement,no corrosion
-body,length x width x height,,0.10x0.10x0.20,m,STL bounding box,fixed
+body,length x width x height,,0.01x0.01x0.02,m,user requirement,fixed
 body,density,rho_b,7870,kg/m3,iron baseline,7800-7900
-body,mass,m,15.74,kg,derived from density and volume,-
-body,inertia Ixx,Ixx,0.0655833,kg m2,solid cuboid analytic,-
-body,inertia Iyy,Iyy,0.0655833,kg m2,solid cuboid analytic,-
-body,inertia Izz,Izz,0.0262333,kg m2,solid cuboid analytic,-
+body,mass,m,0.01574,kg,derived from density and volume,-
+body,inertia Ixx,Ixx,6.55833e-7,kg m2,solid cuboid analytic,-
+body,inertia Iyy,Iyy,6.55833e-7,kg m2,solid cuboid analytic,-
+body,inertia Izz,Izz,2.62333e-7,kg m2,solid cuboid analytic,-
+body,initial submerged height,h_sub,0.02,m,fully submerged upright block,changes with pose
+body,initial emerged height,h_air,0,m,block top is 0.03 m below rigid lid,-
+body,buoyancy volume,,dynamic,m3,integral of bodyMask over water mesh,orientation dependent
 immersed_boundary,penalty relaxation,tau,0.0002,s,numerical parameter,mesh and dt dependent
-immersed_boundary,interface thickness,epsilon,0.002,m,two minimum cells,mesh dependent
+immersed_boundary,interface thickness,epsilon,0.001,m,one minimum cell,mesh dependent
 contact,contact model,,six-face projected Winkler-Coulomb,-,54-point oriented surface quadrature,calibrate against sinkage test
-contact,upright projected area,A_bottom,0.01,m2,0.10x0.10 m bottom face,exact geometry
-contact,long-side projected area,A_side,0.02,m2,0.10x0.20 m side face,exact geometry
+contact,upright projected area,A_bottom,0.0001,m2,0.01x0.01 m bottom face,exact geometry
+contact,long-side projected area,A_side,0.0002,m2,0.01x0.02 m side face,exact geometry
 contact,surface quadrature points,N_contact,54,-,3x3 points on each of six oriented faces,direction weighted
 contact,contact normal,,local evolving bed normal,-,nearest finite-area tangent plane,parallel reduced
 contact,foundation stiffness,K,5.0e6,N/m3,dense wet-sand baseline,strong uncertainty
@@ -70,8 +74,8 @@ quality_control,entrainment forcing,,wallShearStress,Pa/rho,bed patch output,com
 quality_control,field bounds,,fieldMinMax,-,U p k omega Cs bodyMask,checked every write time
 resources,desktop MPI ranks,Ncpu,6,-,Ryzen 5 7500F physical cores,validated
 resources,desktop memory,RAM,15,GiB,available host,no swap
-resources,recommended HPC MPI ranks,Ncpu_hpc,64,-,production starting point,strong-scaling test required
-resources,recommended HPC memory,RAM_hpc,128,GiB,conservative allocation,measure scheduler MaxRSS
-resources,recommended scratch,scratch,100,GiB,partitioned time series,depends on write fields
+resources,recommended HPC MPI ranks,Ncpu_hpc,8,-,small-case upper starting point,strong-scaling test required
+resources,recommended HPC memory,RAM_hpc,16,GiB,conservative allocation,measure scheduler MaxRSS
+resources,recommended scratch,scratch,20,GiB,partitioned time series,depends on write fields
 resources,desktop decomposition,,3x2x1,-,hierarchical x-y split,every rank owns bed faces
-resources,64-rank decomposition,,8x8x1,-,generated hierarchical x-y split,benchmark on target cluster
+resources,8-rank decomposition,,4x2x1,-,generated hierarchical x-y split,benchmark on target cluster

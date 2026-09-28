@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --job-name=yangtze-iron-63s
-#SBATCH --nodes=2
-#SBATCH --ntasks=64
+#SBATCH --nodes=1
+#SBATCH --ntasks=8
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=128G
-#SBATCH --time=7-00:00:00
+#SBATCH --mem=16G
+#SBATCH --time=3-00:00:00
 #SBATCH --output=slurm-%j.out
 
 # Generic Slurm template. Adjust the partition/account/module lines to the

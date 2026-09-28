@@ -105,8 +105,6 @@ const scalar bearingCapacity =
     contactProperties.get<scalar>("bearingCapacity");
 const scalar contactSearchRadius =
     contactProperties.get<scalar>("searchRadius");
-const scalar displacedVolume =
-    contactProperties.get<scalar>("displacedVolume");
 const scalar contactFluidDensity =
     contactProperties.get<scalar>("fluidDensity");
 

@@ -3,9 +3,9 @@
 
 The Cartesian topology is intentionally generated instead of hand-writing 75
 blocks.  Every interface is conformal, which is required by the moving Exner
-bed.  The 1 mm x/y core covers the 100 x 100 mm iron block plus 10 mm clearance
-on every side.  The lowest 40 mm is also 1 mm in z; the remaining body height
-uses 2 mm, and the free-surface cap grows to 10 mm.
+bed.  The 1 mm x/y core covers the 10 x 10 mm iron block plus 5 mm clearance
+on every side.  The lowest 25 mm is also 1 mm in z; the upper half grades
+toward the rigid-lid free surface without exceeding the requested 25 mm cap.
 """
 
 from pathlib import Path
@@ -14,17 +14,18 @@ CASE = Path(__file__).resolve().parent
 OUT = CASE / "system" / "blockMeshDict"
 
 # Coordinates, cell counts and grading ratios (last cell / first cell).
-# The 0.10--0.19 m and 0.31--0.40 m bands smoothly connect the far field
-# to the 1 mm core.  Maximum cells are the uniform 25 mm outer cells.
-X = [0.00, 0.10, 0.19, 0.31, 0.40, 0.50]
-Y = [0.00, 0.10, 0.19, 0.31, 0.40, 0.50]
-Z = [0.00, 0.04, 0.22, 0.25]
-NX = [4, 12, 120, 12, 4]
-NY = [4, 12, 120, 12, 4]
-NZ = [40, 90, 3]
-GX = [1.0, 0.20, 1.0, 5.0, 1.0]
-GY = [1.0, 0.20, 1.0, 5.0, 1.0]
-GZ = [1.0, 1.0, 1.0]
+# The 0.010--0.015 m and 0.035--0.040 m bands connect 2.5 mm outer cells to
+# the 1 mm core.  On this small domain the actual maximum is about 3.3 mm in
+# the upper water column; using the nominal 25 mm cap would under-resolve it.
+X = [0.000, 0.010, 0.015, 0.035, 0.040, 0.050]
+Y = [0.000, 0.010, 0.015, 0.035, 0.040, 0.050]
+Z = [0.000, 0.025, 0.050]
+NX = [4, 2, 20, 2, 4]
+NY = [4, 2, 20, 2, 4]
+NZ = [25, 10]
+GX = [1.0, 0.50, 1.0, 2.0, 1.0]
+GY = [1.0, 0.50, 1.0, 2.0, 1.0]
+GZ = [1.0, 3.0]
 
 
 def vid(i: int, j: int, k: int) -> int:

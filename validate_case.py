@@ -60,10 +60,10 @@ checks = [
     ("constant/transportProperties", "rhoF", 999.0),
     ("constant/bedloadProperties", "morphoAccFactor", 1.0),
     ("constant/immersedBodyProperties", "penaltyTime", 2.0e-4),
-    ("constant/immersedBodyProperties", "interfaceThickness", 2.0e-3),
+    ("constant/immersedBodyProperties", "interfaceThickness", 1.0e-3),
     ("constant/immersedBodyProperties", "releaseTime", 3.0),
     ("constant/immersedBodyProperties", "sedimentReleaseTime", 3.0),
-    ("constant/immersedBodyProperties", "mass", 15.74),
+    ("constant/immersedBodyProperties", "mass", 0.01574),
     ("constant/immersedBodyProperties", "staticFriction", 0.52),
     ("constant/immersedBodyProperties", "dynamicFriction", 0.42),
     ("system/controlDict", "endTime", 63.0),
@@ -73,11 +73,12 @@ checks = [
 for item in checks:
     expect(*item)
 
-expect_vector("constant/immersedBodyProperties", "halfSize", (0.05, 0.05, 0.10))
+expect_vector("constant/immersedBodyProperties", "halfSize", (0.005, 0.005, 0.010))
+expect_vector("constant/immersedBodyProperties", "centreOfMass", (0.025, 0.025, 0.010))
 expect_vector(
     "constant/immersedBodyProperties",
     "momentOfInertia",
-    (0.0655833, 0.0655833, 0.0262333),
+    (6.55833e-7, 6.55833e-7, 2.62333e-7),
 )
 
 # Values that are nested or vector-valued are checked explicitly.
@@ -86,8 +87,9 @@ required_fragments = {
     "constant/g": ["value      (0 0 -9.80665);"],
     "0_org/U": ["uniform (0.50 0 0);"],
     "0_org/k": ["uniform 9.375e-4;"],
-    "0_org/omega": ["uniform 3.2;"],
+    "0_org/omega": ["uniform 16.0;"],
     "0_org/nut": ["nutkRoughWallFunction", "Ks    uniform 5.75e-4;"],
+    "0_org/finite-area/rigidBed": ["internalField uniform (0 0 -0.05);"],
     "system/decomposeParDict": ["method hierarchical;"],
     "system/controlDict": [
         "type            yPlus;",
@@ -155,15 +157,15 @@ if not (len(point_entries) == len(normal_entries) == len(area_entries) == 54):
     errors.append("constant/contactQuadrature: expected 54 points/normals/areas")
 else:
     parsed_normals = [tuple(float(v) for v in row.split()) for row in normal_entries]
-    if not math.isclose(sum(area_entries), 0.10, abs_tol=1e-10):
-        errors.append("constant/contactQuadrature: total cuboid surface area must be 0.10 m2")
+    if not math.isclose(sum(area_entries), 0.0010, abs_tol=1e-10):
+        errors.append("constant/contactQuadrature: total cuboid surface area must be 0.0010 m2")
     expected_face_areas = {
-        (-1.0, 0.0, 0.0): 0.02,
-        (1.0, 0.0, 0.0): 0.02,
-        (0.0, -1.0, 0.0): 0.02,
-        (0.0, 1.0, 0.0): 0.02,
-        (0.0, 0.0, -1.0): 0.01,
-        (0.0, 0.0, 1.0): 0.01,
+        (-1.0, 0.0, 0.0): 0.0002,
+        (1.0, 0.0, 0.0): 0.0002,
+        (0.0, -1.0, 0.0): 0.0002,
+        (0.0, 1.0, 0.0): 0.0002,
+        (0.0, 0.0, -1.0): 0.0001,
+        (0.0, 0.0, 1.0): 0.0001,
     }
     for normal, wanted_area in expected_face_areas.items():
         actual_area = sum(
@@ -176,14 +178,14 @@ else:
             )
 
 # Independent derived-value audit.
-u, depth, nu, gravity = 0.50, 0.25, 1.14e-6, 9.80665
+u, depth, nu, gravity = 0.50, 0.05, 1.14e-6, 9.80665
 re_h = u * depth / nu
 froude = u / math.sqrt(gravity * depth)
-volume = 0.10 * 0.10 * 0.20
+volume = 0.01 * 0.01 * 0.02
 mass = 7870.0 * volume
-ixx = mass * (0.10**2 + 0.20**2) / 12.0
-izz = mass * (0.10**2 + 0.10**2) / 12.0
-cells = (4 + 12 + 120 + 12 + 4) ** 2 * (40 + 90 + 3)
+ixx = mass * (0.01**2 + 0.02**2) / 12.0
+izz = mass * (0.01**2 + 0.01**2) / 12.0
+cells = (4 + 2 + 20 + 2 + 4) ** 2 * (25 + 10)
 
 if errors:
     print("CASE VALIDATION FAILED", file=sys.stderr)
