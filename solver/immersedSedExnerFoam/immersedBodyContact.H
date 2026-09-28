@@ -10,8 +10,9 @@ contactForce = vector
 );
 contactMoment = Zero;
 
-const vector bedNormal(0, 0, 1);
+const vector verticalNormal(0, 0, 1);
 const vectorField& bedCentres = bed.aMesh().areaCentres();
+const vectorField& bedAreaNormals = bed.aMesh().faceAreaNormals();
 
 // Project only downward-facing surface patches onto the horizontal bed.  The
 // summed projected area is 0.01 m2 upright and 0.02 m2 on either long side.
@@ -26,7 +27,7 @@ forAll(refContactPoints, pointI)
             bodyMotion.orientation() & refContactNormals[pointI];
         currentPointAreas[pointI] =
             refContactPointAreas[pointI]
-           *max(-(currentNormal & bedNormal), scalar(0));
+           *max(-(currentNormal & verticalNormal), scalar(0));
     }
     else
     {
@@ -56,7 +57,8 @@ forAll(refContactPoints, pointI)
     const vector contactVelocity = bodyMotion.velocity(contactPoint);
 
     scalar localDistanceSqr = GREAT;
-    scalar localBedZ = 0;
+    vector localBedCentre(Zero);
+    vector localBedNormal(verticalNormal);
 
     forAll(bedCentres, bedFaceI)
     {
@@ -67,7 +69,14 @@ forAll(refContactPoints, pointI)
         if (distanceSqr < localDistanceSqr)
         {
             localDistanceSqr = distanceSqr;
-            localBedZ = bedCentres[bedFaceI].z();
+            localBedCentre = bedCentres[bedFaceI];
+            // Finite-area bed normals follow the volume-patch orientation;
+            // enforce an upward contact normal for support forces.
+            localBedNormal = -bedAreaNormals[bedFaceI];
+            if ((localBedNormal & verticalNormal) < 0)
+            {
+                localBedNormal = -localBedNormal;
+            }
         }
     }
 
@@ -78,9 +87,11 @@ forAll(refContactPoints, pointI)
         mag(localDistanceSqr - globalDistanceSqr)
       < max(SMALL, 1.0e-10*max(globalDistanceSqr, scalar(1)));
 
-    scalar bedZContribution = ownsNearest ? localBedZ : 0;
+    vector bedCentreContribution = ownsNearest ? localBedCentre : vector(Zero);
+    vector bedNormalContribution = ownsNearest ? localBedNormal : vector(Zero);
     label nearestCount = ownsNearest ? 1 : 0;
-    reduce(bedZContribution, sumOp<scalar>());
+    reduce(bedCentreContribution, sumOp<vector>());
+    reduce(bedNormalContribution, sumOp<vector>());
     reduce(nearestCount, sumOp<label>());
 
     if
@@ -92,21 +103,28 @@ forAll(refContactPoints, pointI)
         continue;
     }
 
-    const scalar bedZ = bedZContribution/scalar(nearestCount);
-    const scalar penetration = bedZ - contactPoint.z();
+    const vector nearestBedCentre =
+        bedCentreContribution/scalar(nearestCount);
+    vector contactNormal = bedNormalContribution/scalar(nearestCount);
+    contactNormal /= mag(contactNormal) + VSMALL;
+
+    // Signed distance to the local tangent plane is more accurate than a
+    // vertical-only gap on the sloping sides of a scour hole.
+    const scalar penetration =
+        (nearestBedCentre - contactPoint) & contactNormal;
 
     if (penetration <= 0)
     {
         continue;
     }
 
-    const scalar normalVelocity = contactVelocity & bedNormal;
+    const scalar normalVelocity = contactVelocity & contactNormal;
     scalar normalForce =
         pointStiffness*penetration - pointDamping*normalVelocity;
     normalForce = min(max(normalForce, scalar(0)), maxPointForce);
 
     const vector tangentialVelocity =
-        contactVelocity - normalVelocity*bedNormal;
+        contactVelocity - normalVelocity*contactNormal;
     const scalar tangentialSpeed = mag(tangentialVelocity);
     vector tangentialForce(Zero);
 
@@ -126,7 +144,7 @@ forAll(refContactPoints, pointI)
             *tangentialVelocity/(tangentialSpeed + VSMALL);
     }
 
-    const vector pointForce = normalForce*bedNormal + tangentialForce;
+    const vector pointForce = normalForce*contactNormal + tangentialForce;
     contactForce += pointForce;
     contactMoment +=
         (contactPoint - bodyMotion.centreOfMass()) ^ pointForce;

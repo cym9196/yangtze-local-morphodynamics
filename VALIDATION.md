@@ -40,6 +40,12 @@ exited with status 0. The quadrature verifier independently confirms 54 points,
 0.10 m2 total cuboid surface area, 0.01 m2 top/bottom faces and 0.02 m2 long
 side faces.
 
+The contact gap and support/friction directions were subsequently upgraded
+from a fixed vertical direction to the nearest evolving finite-area bed tangent
+plane. The solver compiled and repeated the same coupled regression with
+identical flat-bed reference forces and exit status 0, as expected before the
+bed develops a slope.
+
 The quality-control function objects (`yPlus`, bed `wallShearStress` and
 `fieldMinMax`) were then instantiated in a one-step six-rank solver run. The
 solver recognized the bed patch, advanced normally and exited with status 0;
