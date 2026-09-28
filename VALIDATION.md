@@ -1,7 +1,7 @@
 # Reproducibility and feasibility record
 
 Test host: Ubuntu/OpenFOAM v2412, AMD Ryzen 5 7500F (6 physical cores),
-15 GiB RAM, no swap. Tests were run with six MPI ranks on 2026-09-27.
+15 GiB RAM, no swap. Tests were run on 2026-09-27 and 2026-09-28.
 
 ## Mesh verification
 
@@ -31,6 +31,21 @@ the same run:
 
 The production release times (`3 s`) and production end time (`63 s`) were
 automatically restored after the test.
+
+## Parallel decomposition benchmark
+
+The original generic Scotch split created upper-water partitions with zero
+finite-area bed faces at 12 ranks. It was replaced by a generated hierarchical
+x/y split with `nz=1`, so every process spans the depth and owns bed faces.
+
+| configuration | decomposition | two-step wall time | result |
+|---|---:|---:|---|
+| 6 physical cores | 3 x 2 x 1 | 82.32 s | selected |
+| 12 hardware threads | 4 x 3 x 1 | 93.15 s | slower |
+
+At 12 ranks the maximum bed-face count was only 0.66% above the mean, proving
+that the finite-area work was balanced. Six physical cores are retained as the
+desktop default because simultaneous multithreading added overhead.
 
 ## Full-run feasibility on this host
 

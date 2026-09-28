@@ -8,11 +8,13 @@ if [ -z "${WM_PROJECT_DIR:-}" ]; then
 fi
 
 set -e
+NPROCS="${NPROCS:-6}"
 
 # Always restore the production end time even if MPI or a solver check fails.
 restore_control()
 {
     foamDictionary system/controlDict -entry endTime -set 63 >/dev/null
+    python3 set_decomposition.py 6 >/dev/null
 }
 trap restore_control EXIT INT TERM
 
@@ -21,11 +23,13 @@ foamListTimes -processor -rm >/dev/null 2>&1 || true
 rm -rf 0 postProcessing
 cp -r 0_org 0
 
-foamDictionary system/controlDict -entry endTime -set 0.001 >/dev/null
+foamDictionary system/controlDict -entry endTime -set 0.0003 >/dev/null
+python3 set_decomposition.py "$NPROCS" >/dev/null
 decomposePar -force > log.decomposePar.smoke 2>&1
 
 # /usr/bin/time records peak resident memory for feasibility assessment.
-/usr/bin/time -v mpirun -np 6 immersedSedExnerFoam -parallel \
+/usr/bin/time -v mpirun ${MPI_EXTRA_ARGS:-} -np "$NPROCS" \
+    immersedSedExnerFoam -parallel \
     > log.smoke 2> log.smoke.resources
 
 echo "Smoke test completed; production endTime restored to 63 s"

@@ -66,3 +66,5 @@ resources,desktop memory,RAM,15,GiB,available host,no swap
 resources,recommended HPC MPI ranks,Ncpu_hpc,64,-,production starting point,strong-scaling test required
 resources,recommended HPC memory,RAM_hpc,128,GiB,conservative allocation,measure scheduler MaxRSS
 resources,recommended scratch,scratch,100,GiB,partitioned time series,depends on write fields
+resources,desktop decomposition,,3x2x1,-,hierarchical x-y split,every rank owns bed faces
+resources,64-rank decomposition,,8x8x1,-,generated hierarchical x-y split,benchmark on target cluster

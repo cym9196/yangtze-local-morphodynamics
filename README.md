@@ -52,7 +52,7 @@ VOF、多组分输沙、黏沙本构或 CFD–DEM/多孔介质接触模型。
 
 长江悬沙常含比床沙细得多的冲泻质。当前求解器是单粒径，不能把约
 `0.01 mm` 的悬沙粒径和 `0.23 mm` 床沙错误合成一种粒径。因此基线入口
-悬沙为零，只模拟床沙自身起悬；0.09、0.163、0.19 kg/m3 三个观测情景已
+悬沙为零，只模拟床沙自身起悬；0.10、0.16、0.32 kg/m3 三个观测情景已
 记录在参数表，待多组分模型中启用。
 
 ## 4. Ubuntu 上逐步运行
@@ -88,6 +88,10 @@ sed -i 's/startFrom       startTime;/startFrom       latestTime;/' system/contro
 mpirun -np 6 immersedSedExnerFoam -parallel \
   >> log.immersedSedExnerFoam.63s 2>&1
 ```
+
+`set_decomposition.py` 会自动采用只沿水平面划分的 `3×2×1` 分区，因此 6 个
+进程都贯穿水深并拥有床面面元。实测 12 个超线程反而比 6 个物理核心慢，
+本机默认值保持为 6；集群上的 64 核会自动生成 `8×8×1`。
 
 六核短测表明本机完整运行约需 3–8 周。集群上从算例目录提交前，先根据站点
 修改 `hpc/submit_slurm.sh` 的账户、分区和 OpenFOAM 环境；默认模板申请 64 核、

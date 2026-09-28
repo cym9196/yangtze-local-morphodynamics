@@ -88,6 +88,11 @@ required_fragments = {
     "0_org/k": ["uniform 9.375e-4;"],
     "0_org/omega": ["uniform 3.2;"],
     "0_org/nut": ["nutkRoughWallFunction", "Ks    uniform 5.75e-4;"],
+    "system/decomposeParDict": [
+        "numberOfSubdomains 6;",
+        "method hierarchical;",
+        "n       (3 2 1);",
+    ],
 }
 for relative, fragments in required_fragments.items():
     content = text(relative)

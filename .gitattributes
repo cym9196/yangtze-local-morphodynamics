@@ -4,3 +4,4 @@
 Allmesh text eol=lf
 Allrun* text eol=lf
 system/blockMeshDict text eol=lf
+system/decomposeParDict text eol=lf

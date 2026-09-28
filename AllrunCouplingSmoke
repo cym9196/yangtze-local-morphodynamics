@@ -9,6 +9,7 @@ if [ -z "${WM_PROJECT_DIR:-}" ]; then
 fi
 
 set -e
+NPROCS="${NPROCS:-6}"
 
 restore_production()
 {
@@ -17,6 +18,7 @@ restore_production()
         -entry releaseTime -set 3.0 >/dev/null
     foamDictionary constant/immersedBodyProperties \
         -entry sedimentReleaseTime -set 3.0 >/dev/null
+    python3 set_decomposition.py 6 >/dev/null
 }
 trap restore_production EXIT INT TERM
 
@@ -31,9 +33,11 @@ foamDictionary constant/immersedBodyProperties \
     -entry releaseTime -set 0 >/dev/null
 foamDictionary constant/immersedBodyProperties \
     -entry sedimentReleaseTime -set 0 >/dev/null
+python3 set_decomposition.py "$NPROCS" >/dev/null
 
 decomposePar -force > log.decomposePar.couplingSmoke 2>&1
-/usr/bin/time -v mpirun -np 6 immersedSedExnerFoam -parallel \
+/usr/bin/time -v mpirun ${MPI_EXTRA_ARGS:-} -np "$NPROCS" \
+    immersedSedExnerFoam -parallel \
     > log.couplingSmoke 2> log.couplingSmoke.resources
 
 echo "Coupling smoke test completed; production dictionaries restored"
