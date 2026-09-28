@@ -10,18 +10,48 @@ contactForce = vector
 );
 contactMoment = Zero;
 
-const scalar pointArea = contactArea/scalar(refContactPoints.size());
-const scalar pointMass = bodyMotion.mass()/scalar(refContactPoints.size());
-const scalar pointStiffness = foundationStiffness*pointArea;
-const scalar pointDamping =
-    2.0*contactDampingRatio
-   *Foam::sqrt(doubleScalar(max(pointStiffness*pointMass, SMALL)));
-const scalar maxPointForce = bearingCapacity*pointArea;
 const vector bedNormal(0, 0, 1);
 const vectorField& bedCentres = bed.aMesh().areaCentres();
 
+// Project only downward-facing surface patches onto the horizontal bed.  The
+// summed projected area is 0.01 m2 upright and 0.02 m2 on either long side.
+scalarField currentPointAreas(refContactPoints.size(), Zero);
+scalar currentProjectedArea = 0;
+
 forAll(refContactPoints, pointI)
 {
+    if (useDirectionalContactQuadrature)
+    {
+        const vector currentNormal =
+            bodyMotion.orientation() & refContactNormals[pointI];
+        currentPointAreas[pointI] =
+            refContactPointAreas[pointI]
+           *max(-(currentNormal & bedNormal), scalar(0));
+    }
+    else
+    {
+        currentPointAreas[pointI] =
+            contactArea/scalar(refContactPoints.size());
+    }
+    currentProjectedArea += currentPointAreas[pointI];
+}
+
+forAll(refContactPoints, pointI)
+{
+    const scalar pointArea = currentPointAreas[pointI];
+    if (pointArea <= SMALL)
+    {
+        continue;
+    }
+
+    const scalar pointMass =
+        bodyMotion.mass()*pointArea/(currentProjectedArea + VSMALL);
+    const scalar pointStiffness = foundationStiffness*pointArea;
+    const scalar pointDamping =
+        2.0*contactDampingRatio
+       *Foam::sqrt(doubleScalar(max(pointStiffness*pointMass, SMALL)));
+    const scalar maxPointForce = bearingCapacity*pointArea;
+
     const point contactPoint = bodyMotion.transform(refContactPoints[pointI]);
     const vector contactVelocity = bodyMotion.velocity(contactPoint);
 

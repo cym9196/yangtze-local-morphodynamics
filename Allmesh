@@ -13,6 +13,7 @@ rm -rf constant/polyMesh constant/faMesh
 # This generator documents every refinement band and avoids maintaining 75
 # hand-written hexahedral blocks.
 python3 make_variable_mesh.py
+python3 make_contact_quadrature.py
 blockMesh > log.blockMesh 2>&1
 checkMesh > log.checkMesh 2>&1
 makeFaMesh > log.makeFaMesh 2>&1

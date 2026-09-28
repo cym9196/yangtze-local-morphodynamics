@@ -12,8 +12,9 @@ jobs:
       - name: Regenerate deterministic mesh dictionary
         run: |
           python3 make_variable_mesh.py
+          python3 make_contact_quadrature.py
           python3 set_decomposition.py 6
       - name: Check generated file and parameter consistency
         run: |
-          git diff --exit-code -- system/blockMeshDict system/decomposeParDict
+          git diff --exit-code -- system/blockMeshDict system/decomposeParDict constant/contactQuadrature
           python3 validate_case.py

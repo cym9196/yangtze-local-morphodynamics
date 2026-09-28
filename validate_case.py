@@ -82,6 +82,7 @@ expect_vector(
 
 # Values that are nested or vector-valued are checked explicitly.
 required_fragments = {
+    "constant/immersedBodyProperties": ['#include "contactQuadrature"'],
     "constant/bedloadProperties": ["coefShields     1;"],
     "constant/g": ["value      (0 0 -9.80665);"],
     "0_org/U": ["uniform (0.50 0 0);"],
@@ -118,6 +119,51 @@ try:
             errors.append("system/decomposeParDict: nz must be 1 so every rank owns bed faces")
 except ValueError as exc:
     errors.append(str(exc))
+
+# Six oriented faces, each integrated by a 3 x 3 trapezoidal rule.
+quadrature = text("constant/contactQuadrature")
+
+
+def list_block(key: str) -> str:
+    match = re.search(rf"(?s)\b{re.escape(key)}\s*\(\s*(.*?)\s*\);", quadrature)
+    if not match:
+        errors.append(f"constant/contactQuadrature: missing {key}")
+        return ""
+    return match.group(1)
+
+
+point_entries = re.findall(r"\(([^()]+)\)", list_block("contactPoints"))
+normal_entries = re.findall(r"\(([^()]+)\)", list_block("contactNormals"))
+area_entries = [
+    float(value)
+    for value in re.findall(
+        r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?",
+        list_block("contactPointAreas"),
+    )
+]
+if not (len(point_entries) == len(normal_entries) == len(area_entries) == 54):
+    errors.append("constant/contactQuadrature: expected 54 points/normals/areas")
+else:
+    parsed_normals = [tuple(float(v) for v in row.split()) for row in normal_entries]
+    if not math.isclose(sum(area_entries), 0.10, abs_tol=1e-10):
+        errors.append("constant/contactQuadrature: total cuboid surface area must be 0.10 m2")
+    expected_face_areas = {
+        (-1.0, 0.0, 0.0): 0.02,
+        (1.0, 0.0, 0.0): 0.02,
+        (0.0, -1.0, 0.0): 0.02,
+        (0.0, 1.0, 0.0): 0.02,
+        (0.0, 0.0, -1.0): 0.01,
+        (0.0, 0.0, 1.0): 0.01,
+    }
+    for normal, wanted_area in expected_face_areas.items():
+        actual_area = sum(
+            area for area, parsed in zip(area_entries, parsed_normals) if parsed == normal
+        )
+        if not math.isclose(actual_area, wanted_area, abs_tol=1e-10):
+            errors.append(
+                f"constant/contactQuadrature: face {normal} area={actual_area}, "
+                f"expected {wanted_area}"
+            )
 
 # Independent derived-value audit.
 u, depth, nu, gravity = 0.50, 0.25, 1.14e-6, 9.80665

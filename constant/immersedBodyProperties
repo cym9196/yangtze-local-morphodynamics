@@ -23,8 +23,8 @@ sedimentMaskHalfFraction  0.70;
 releaseTime               3.0;
 sedimentReleaseTime       3.0;
 
-// Parallel-safe bed contact. The 25 points sample the lower face of the
-// cuboid; the nearest finite-area bed elevation is reduced across MPI ranks.
+// Parallel-safe bed contact. Six oriented face quadratures follow the cuboid
+// through translation/rotation; nearest bed elevation is reduced across MPI.
 contactProperties
 {
     contactArea          0.01;
@@ -41,14 +41,9 @@ contactProperties
     displacedVolume      0.002;
     fluidDensity         999;
 
-    contactPoints
-    (
-        (0.2050 0.2050 0) (0.2275 0.2050 0) (0.2500 0.2050 0) (0.2725 0.2050 0) (0.2950 0.2050 0)
-        (0.2050 0.2275 0) (0.2275 0.2275 0) (0.2500 0.2275 0) (0.2725 0.2275 0) (0.2950 0.2275 0)
-        (0.2050 0.2500 0) (0.2275 0.2500 0) (0.2500 0.2500 0) (0.2725 0.2500 0) (0.2950 0.2500 0)
-        (0.2050 0.2725 0) (0.2275 0.2725 0) (0.2500 0.2725 0) (0.2725 0.2725 0) (0.2950 0.2725 0)
-        (0.2050 0.2950 0) (0.2275 0.2950 0) (0.2500 0.2950 0) (0.2725 0.2950 0) (0.2950 0.2950 0)
-    );
+    // Generated six-face quadrature: points, outward body-frame normals and
+    // tributary surface areas.  Projected area changes correctly after tip.
+    #include "contactQuadrature"
 }
 
 sixDoFCoeffs

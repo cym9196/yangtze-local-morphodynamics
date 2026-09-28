@@ -43,7 +43,10 @@ body,inertia Iyy,Iyy,0.0655833,kg m2,solid cuboid analytic,-
 body,inertia Izz,Izz,0.0262333,kg m2,solid cuboid analytic,-
 immersed_boundary,penalty relaxation,tau,0.0002,s,numerical parameter,mesh and dt dependent
 immersed_boundary,interface thickness,epsilon,0.002,m,two minimum cells,mesh dependent
-contact,contact model,,25-point Winkler-Coulomb,-,custom coupled model,calibrate against sinkage test
+contact,contact model,,six-face projected Winkler-Coulomb,-,54-point oriented surface quadrature,calibrate against sinkage test
+contact,upright projected area,A_bottom,0.01,m2,0.10x0.10 m bottom face,exact geometry
+contact,long-side projected area,A_side,0.02,m2,0.10x0.20 m side face,exact geometry
+contact,surface quadrature points,N_contact,54,-,3x3 points on each of six oriented faces,direction weighted
 contact,foundation stiffness,K,5.0e6,N/m3,dense wet-sand baseline,strong uncertainty
 contact,damping ratio,zeta,1.20,-,overdamped baseline,0.8-1.5
 contact,static friction,mu_s,0.52,-,iron-wet sand assumption,0.4-0.65

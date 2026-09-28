@@ -22,15 +22,23 @@ The coupled smoke test then forced both release times to zero and verified, in
 the same run:
 
 - suspension equation: `Max(Cs)=8.80e-4` after two steps;
-- moving Exner bed: maximum vertex motion `2.37e-6 m`;
+- moving Exner bed: maximum vertex motion `3.34e-6 m` in the latest regression;
 - six-DoF body: centre changed from `(0.25 0.25 0.10)` to
   `(0.25000281 0.25 0.099999807)`;
-- contact force was finite and included tangential friction;
+- six-face contact force was finite and included tangential friction
+  `(-0.0846, 0, 19.8656) N` after the second regression step;
 - parallel run exited with status 0 and no swap activity;
 - elapsed time was 92.43 s for two start-up steps at about 586% CPU.
 
 The production release times (`3 s`) and production end time (`63 s`) were
 automatically restored after the test.
+
+The orientation-aware contact upgrade was compiled with OpenFOAM v2412 and
+passed a fresh two-step, six-rank fully coupled regression: suspension reached
+`Max(Cs)=8.80e-4`, the Exner bed moved, the body translated, and the solver
+exited with status 0. The quadrature verifier independently confirms 54 points,
+0.10 m2 total cuboid surface area, 0.01 m2 top/bottom faces and 0.02 m2 long
+side faces.
 
 The quality-control function objects (`yPlus`, bed `wallShearStress` and
 `fieldMinMax`) were then instantiated in a one-step six-rank solver run. The

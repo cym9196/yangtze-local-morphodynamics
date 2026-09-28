@@ -59,6 +59,38 @@ const pointField refContactPoints
     contactProperties.get<pointField>("contactPoints")
 );
 const scalar contactArea = contactProperties.get<scalar>("contactArea");
+
+// Optional orientation-aware surface quadrature.  Legacy cases that provide
+// only contactPoints retain the original equal-area behaviour.
+const bool useDirectionalContactQuadrature =
+    contactProperties.found("contactNormals")
+ && contactProperties.found("contactPointAreas");
+
+vectorField refContactNormals(refContactPoints.size(), vector::zero);
+scalarField refContactPointAreas
+(
+    refContactPoints.size(),
+    contactArea/scalar(refContactPoints.size())
+);
+
+if (useDirectionalContactQuadrature)
+{
+    refContactNormals =
+        contactProperties.get<vectorField>("contactNormals");
+    refContactPointAreas =
+        contactProperties.get<scalarField>("contactPointAreas");
+
+    if
+    (
+        refContactNormals.size() != refContactPoints.size()
+     || refContactPointAreas.size() != refContactPoints.size()
+    )
+    {
+        FatalErrorInFunction
+            << "contactPoints, contactNormals and contactPointAreas must "
+            << "have identical sizes" << exit(FatalError);
+    }
+}
 const scalar foundationStiffness =
     contactProperties.get<scalar>("foundationStiffness");
 const scalar contactDampingRatio =

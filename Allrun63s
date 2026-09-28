@@ -14,6 +14,9 @@ set -e
 NPROCS="${NPROCS:-6}"
 SKIP_MESH="${SKIP_MESH:-0}"
 
+# Keep the six-face contact integration deterministic on every platform.
+python3 make_contact_quadrature.py
+
 # Reject inconsistent production dictionaries before spending days of CPU.
 python3 validate_case.py
 
