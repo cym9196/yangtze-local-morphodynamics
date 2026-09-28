@@ -61,6 +61,9 @@ numerics,pressure correctors,nCorrectors,2,-,baseline,check continuity
 numerics,nonorthogonal correctors,nNonOrth,1,-,conservative baseline although mesh is orthogonal,could be zero after verification
 output,write interval,delta_t_write,2.0,s,disk-limited baseline,32 states over 63 s
 output,format,,binary,-,storage and speed,no binary compression in OpenFOAM
+quality_control,rough-wall resolution,,yPlus,-,written on bed and side walls,inspect after spin-up
+quality_control,entrainment forcing,,wallShearStress,Pa/rho,bed patch output,compare with measured threshold
+quality_control,field bounds,,fieldMinMax,-,U p k omega Cs bodyMask,checked every write time
 resources,desktop MPI ranks,Ncpu,6,-,Ryzen 5 7500F physical cores,validated
 resources,desktop memory,RAM,15,GiB,available host,no swap
 resources,recommended HPC MPI ranks,Ncpu_hpc,64,-,production starting point,strong-scaling test required

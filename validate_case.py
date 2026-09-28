@@ -89,6 +89,11 @@ required_fragments = {
     "0_org/omega": ["uniform 3.2;"],
     "0_org/nut": ["nutkRoughWallFunction", "Ks    uniform 5.75e-4;"],
     "system/decomposeParDict": ["method hierarchical;"],
+    "system/controlDict": [
+        "type            yPlus;",
+        "type            wallShearStress;",
+        "type            fieldMinMax;",
+    ],
 }
 for relative, fragments in required_fragments.items():
     content = text(relative)

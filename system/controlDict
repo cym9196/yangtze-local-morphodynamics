@@ -34,4 +34,39 @@ maxCo             0.35;
 // U=0.50 m/s and a 1 mm minimum cell imply dt <= 0.0007 s at Co=0.35.
 maxDeltaT         0.0005;
 
-functions {};
+functions
+{
+    // Rough-wall resolution check; values are written only with CFD output.
+    yPlusBed
+    {
+        type            yPlus;
+        libs            (fieldFunctionObjects);
+        patches         (bed sideWalls);
+        writeFields     yes;
+        executeControl  writeTime;
+        writeControl    writeTime;
+    }
+
+    // Resolved bed shear is a primary calibration observable for entrainment.
+    bedWallShear
+    {
+        type            wallShearStress;
+        libs            (fieldFunctionObjects);
+        patches         (bed);
+        log             yes;
+        writeFields     yes;
+        writeToFile     yes;
+        executeControl  writeTime;
+        writeControl    writeTime;
+    }
+
+    // Catch divergence, negative turbulence fields and concentration spikes.
+    fieldBounds
+    {
+        type            fieldMinMax;
+        libs            (fieldFunctionObjects);
+        fields          (U p k omega Cs bodyMask);
+        executeControl  writeTime;
+        writeControl    writeTime;
+    }
+}

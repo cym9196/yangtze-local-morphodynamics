@@ -32,6 +32,11 @@ the same run:
 The production release times (`3 s`) and production end time (`63 s`) were
 automatically restored after the test.
 
+The quality-control function objects (`yPlus`, bed `wallShearStress` and
+`fieldMinMax`) were then instantiated in a one-step six-rank solver run. The
+solver recognized the bed patch, advanced normally and exited with status 0;
+the production end time was again restored to 63 s.
+
 ## Parallel decomposition benchmark
 
 The original generic Scotch split created upper-water partitions with zero

@@ -9,6 +9,7 @@ fi
 
 set -e
 NPROCS="${NPROCS:-6}"
+SMOKE_ENDTIME="${SMOKE_ENDTIME:-0.0003}"
 
 # Always restore the production end time even if MPI or a solver check fails.
 restore_control()
@@ -23,7 +24,7 @@ foamListTimes -processor -rm >/dev/null 2>&1 || true
 rm -rf 0 postProcessing
 cp -r 0_org 0
 
-foamDictionary system/controlDict -entry endTime -set 0.0003 >/dev/null
+foamDictionary system/controlDict -entry endTime -set "$SMOKE_ENDTIME" >/dev/null
 python3 set_decomposition.py "$NPROCS" >/dev/null
 decomposePar -force > log.decomposePar.smoke 2>&1
 
