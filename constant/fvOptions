@@ -1,3 +1,4 @@
+// 中文说明：OpenFOAM 体源项配置；当前为空，保留标准接口。
 FoamFile
 {
     version     2.0;
@@ -8,4 +9,3 @@ FoamFile
 }
 
 // No body-force source is needed: velocity is imposed at the inlet.
-

@@ -1,4 +1,5 @@
 #!/bin/sh
+# 中文说明：从已有并行时刻安全续算到 63 s，不删除已经完成的计算结果。
 # Continue an interrupted decomposed 63 s production run without deleting data.
 
 cd "${0%/*}" || exit 1

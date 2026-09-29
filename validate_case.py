@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# 中文说明：交叉检查参数表、几何、网格、物性和运行字典，发现漂移立即报错。
 """Fail fast when a dictionary drifts away from the documented baseline."""
 
 from pathlib import Path
@@ -60,6 +61,7 @@ checks = [
     ("constant/transportProperties", "rhoF", 999.0),
     ("constant/bedloadProperties", "morphoAccFactor", 1.0),
     ("constant/bedloadProperties", "maxBedChangePerStep", 1.0e-6),
+    ("constant/bedloadProperties", "maxBedChangeRate", 2.5e-3),
     ("constant/immersedBodyProperties", "penaltyTime", 2.0e-4),
     ("constant/immersedBodyProperties", "interfaceThickness", 1.0e-3),
     ("constant/immersedBodyProperties", "releaseTime", 3.0),
@@ -76,16 +78,16 @@ checks = [
     ("constant/immersedBodyProperties", "omegaMax", 1.0e5),
     ("constant/immersedBodyProperties", "nutMax", 0.01),
     ("system/controlDict", "endTime", 63.0),
-    ("system/controlDict", "maxCo", 0.35),
-    ("system/controlDict", "maxDeltaT", 5.0e-4),
+    ("system/controlDict", "maxCo", 0.20),
+    ("system/controlDict", "maxDeltaT", 2.0e-4),
 ]
 for item in checks:
     expect(*item)
 
 expect_vector("constant/immersedBodyProperties", "halfSize", (0.005, 0.005, 0.010))
 expect_vector("constant/immersedBodyProperties", "centreOfMass", (0.025, 0.025, 0.010))
-expect_vector("constant/immersedBodyProperties", "min", (0.0, 0.0, -1.0))
-expect_vector("constant/immersedBodyProperties", "max", (0.05, 0.05, 1.0))
+expect_vector("constant/immersedBodyProperties", "min", (0.003, 0.003, -1.0))
+expect_vector("constant/immersedBodyProperties", "max", (0.047, 0.047, 1.0))
 expect_vector("constant/immersedBodyProperties", "activeAxes", (1.0, 1.0, 0.0))
 expect_vector(
     "constant/immersedBodyProperties",
@@ -108,7 +110,14 @@ required_fragments = {
     "0_org/nut": ["nutkRoughWallFunction", "Ks    uniform 5.75e-4;"],
     "0_org/finite-area/rigidBed": ["internalField uniform (0 0 -0.05);"],
     "system/decomposeParDict": ["method hierarchical;"],
-    "system/fvSolution": ["pRefPoint                  (0.025 0.025 0.025);"],
+    "system/fvSolution": [
+        "solver          smoothSolver;",
+        "smoother        symGaussSeidel;",
+        "momentumPredictor          1;",
+        "nOuterCorrectors           2;",
+        "nCorrectors                3;",
+        "pRefPoint                  (0.025 0.025 0.025);",
+    ],
     "system/controlDict": [
         "type            yPlus;",
         "type            wallShearStress;",
@@ -203,7 +212,7 @@ volume = 0.01 * 0.01 * 0.02
 mass = 7870.0 * volume
 ixx = mass * (0.01**2 + 0.02**2) / 12.0
 izz = mass * (0.01**2 + 0.01**2) / 12.0
-cells = (4 + 2 + 20 + 2 + 4) ** 2 * (25 + 10)
+cells = 50 * 50 * 50
 
 if errors:
     print("CASE VALIDATION FAILED", file=sys.stderr)

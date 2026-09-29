@@ -1,3 +1,4 @@
+// 中文说明：由床面高程变化计算网格点运动速度，供动态网格更新使用。
 /*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors

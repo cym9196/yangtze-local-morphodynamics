@@ -1,3 +1,4 @@
+// 中文说明：依据局部 Courant 数和稳定性约束计算自适应时间步倒数。
 /*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors

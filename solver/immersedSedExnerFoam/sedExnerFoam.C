@@ -1,3 +1,4 @@
+// 中文说明：主求解器入口，按 PIMPLE 顺序耦合流场、输沙、床面演化和铁块六自由度运动。
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
@@ -288,17 +289,21 @@ int main(int argc, char *argv[])
             }
             runTime.write();
 
-            bodyMotionLog
-                << runTime.value() << ' '
-                << bodyMotion.centreOfMass() << ' '
-                << bodyMotion.orientation() << ' '
-                << bodyMotion.v() << ' '
-                << bodyMotion.omega() << ' '
-                << hydroForce << ' '
-                << hydroMoment << ' '
-                << contactForce << ' '
-                << contactMoment << nl;
-            bodyMotionLog.flush();
+            if (Pstream::master())
+            {
+                OFstream& bodyMotionLog = bodyMotionLogPtr();
+                bodyMotionLog
+                    << runTime.value() << ' '
+                    << bodyMotion.centreOfMass() << ' '
+                    << bodyMotion.orientation() << ' '
+                    << bodyMotion.v() << ' '
+                    << bodyMotion.omega() << ' '
+                    << hydroForce << ' '
+                    << hydroMoment << ' '
+                    << contactForce << ' '
+                    << contactMoment << nl;
+                bodyMotionLog.flush();
+            }
 
             runTime.printExecutionTime(Info);
         }

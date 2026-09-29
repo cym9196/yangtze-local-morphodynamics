@@ -1,3 +1,4 @@
+// 中文说明：控制求解器、63 s 物理时间、自适应步长、输出和诊断函数。
 FoamFile
 {
     version     2.0;
@@ -30,9 +31,10 @@ timePrecision   8;
 
 runTimeModifiable true;
 adjustTimeStep    true;
-maxCo             0.35;
-// U=0.50 m/s and a 1 mm minimum cell imply dt <= 0.0007 s at Co=0.35.
-maxDeltaT         0.0005;
+maxCo             0.20;
+// Resolve the 0.0002 s Brinkman relaxation time; U=0.50 m/s then gives a
+// nominal cell Courant number of 0.10 on the uniform 1 mm mesh.
+maxDeltaT         0.0002;
 
 functions
 {

@@ -1,3 +1,4 @@
+// 中文说明：读取铁块参数，创建平滑浸没掩膜、刚体状态、六自由度运动和接触变量。
 /*---------------------------------------------------------------------------*\
   Create the Brinkman immersed cuboid and its six-degree-of-freedom state.
 \*---------------------------------------------------------------------------*/
@@ -186,11 +187,18 @@ fileName bodyMotionDirectory
 (
     runTime.path()/"postProcessing"/"immersedBodyMotion"
 );
-mkDir(bodyMotionDirectory);
-OFstream bodyMotionLog(bodyMotionDirectory/"motion.dat");
-bodyMotionLog
-    << "# time centreOfMass orientation velocity angularVelocity "
-    << "hydroForce hydroMoment contactForce contactMoment" << nl;
+autoPtr<OFstream> bodyMotionLogPtr;
+if (Pstream::master())
+{
+    mkDir(bodyMotionDirectory);
+    bodyMotionLogPtr.reset
+    (
+        new OFstream(bodyMotionDirectory/"motion.dat")
+    );
+    bodyMotionLogPtr()
+        << "# time centreOfMass orientation velocity angularVelocity "
+        << "hydroForce hydroMoment contactForce contactMoment" << nl;
+}
 
 #include "updateImmersedBodyFields.H"
 

@@ -1,3 +1,4 @@
+// 中文说明：推移质、临界 Shields、床坡修正、雪崩和 Exner 稳定限制参数。
 FoamFile
 {
     version     2.0;
@@ -45,6 +46,10 @@ morphoAccFactor 1;
 
 // Explicit Exner stability guard: at most 0.1% of a 1 mm cell per CFD step.
 maxBedChangePerStep 1e-6;
+
+// The second cap is proportional to deltaT, so adaptive time-step collapse
+// cannot turn a small displacement into an unbounded dynamic-mesh velocity.
+maxBedChangeRate 2.5e-3;
 
 filterExner      off;
 alphaFiltExner  0.1;

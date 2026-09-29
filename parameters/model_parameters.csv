@@ -4,8 +4,10 @@ geometry,domain width,W,0.05,m,user requirement,fixed
 geometry,water depth,H,0.05,m,user requirement,fixed
 geometry,initial sediment thickness,Hs,0.05,m,user requirement,fixed
 geometry,total tank height,H_total,0.10,m,water plus sediment,fixed
-mesh,minimum cell size,delta_min,0.001,m,user requirement,critical zone
-mesh,maximum cell size,delta_max,0.025,m,user requirement,far field
+mesh,minimum cell size,delta_min,0.001,m,user requirement,uniform entire water domain
+mesh,maximum cell size,delta_max,0.001,m,user requirement,uniform entire water domain
+mesh,volume cell count,N_cells,125000,-,50x50x50 uniform Cartesian,verified by blockMesh
+mesh,bed face count,N_bed,2500,-,50x50 uniform finite-area bed,verified by makeFaMesh
 flow,bulk inlet velocity,U,0.50,m/s,user requirement,calibrate from ADCP profile
 flow,water temperature,T,15,degC,engineering baseline,season dependent
 flow,water density,rho_f,999,kg/m3,fresh water at 15 degC,997-1000
@@ -61,21 +63,25 @@ retainer,type,,body-only horizontal specimen frame,-,prevents exit from 0.05 m t
 retainer,frame stiffness,K_frame,200,N/m,numerically resolved compliant stop,calibrate to physical cage
 retainer,frame damping ratio,zeta_frame,1.20,-,overdamped impact control,0.8-1.5
 retainer,maximum frame force,F_frame_max,2.0,N,numerical safety cap,well above steady drag
+retainer,horizontal frame limits,,0.003 to 0.047,m,keeps diffuse solid mask off CFD boundaries,remove only with a longer domain
 body_damping,linear coefficient,c_linear,0.05,N s/m,0.31 s velocity decay time,calibrate in towing test
 body_damping,angular coefficient,c_angular,3.0e-5,N m s/rad,about 0.02 s angular decay time,calibrate in tip test
 timing,hydrodynamic spin-up,t_spin,3,s,model design,check stationarity
 timing,coupled physical duration,t_run,60,s,user requirement,fixed
-numerics,maximum Courant number,Co_max,0.35,-,stability control,reduce if unstable
-numerics,maximum time step,dt_max,0.0005,s,1 mm and U=0.5 m/s,adaptive
+numerics,maximum Courant number,Co_max,0.20,-,stability control,adaptive
+numerics,maximum time step,dt_max,0.0002,s,resolves Brinkman penalty time,adaptive
 numerics,time discretization,,Euler,-,first-order robust baseline,test second-order after validation
 numerics,momentum convection,,linearUpwind,-,second-order upwind-biased,boundedness monitored
+numerics,momentum linear solver,,smoothSolver/symGaussSeidel,-,robust nonsymmetric velocity solve,check residuals
 numerics,suspended sediment convection,,upwind,-,bounded robust baseline,numerically diffusive
-numerics,PIMPLE outer correctors,nOuter,1,-,baseline,increase for stronger coupling
-numerics,pressure correctors,nCorrectors,2,-,baseline,check continuity
+numerics,PIMPLE momentum predictor,,on,-,stronger immersed-boundary coupling,validated in smoke test
+numerics,PIMPLE outer correctors,nOuter,2,-,stronger immersed-boundary coupling,check convergence
+numerics,pressure correctors,nCorrectors,3,-,stronger immersed-boundary coupling,check continuity
 numerics,nonorthogonal correctors,nNonOrth,1,-,conservative baseline although mesh is orthogonal,could be zero after verification
 numerics,concentration lower bound,Cs_min,0,-,physical volume-fraction bound,hard bound
 numerics,concentration upper bound,Cs_max,0.60,-,bed solid fraction,hard bound
 numerics,maximum bed change per step,dH_max,1e-6,m,0.1 percent of minimum cell,stability guard
+numerics,maximum bed change rate,dHdt_max,2.5e-3,m/s,prevents mesh-speed blow-up when deltaT shrinks,stability guard
 numerics,turbulent kinetic energy bounds,k_bounds,1e-10 to 1.0,m2/s2,wide physical guard,moving-mesh stability
 numerics,specific dissipation bounds,omega_bounds,1 to 1e5,1/s,wide physical guard,moving-mesh stability
 numerics,eddy viscosity maximum,nut_max,0.01,m2/s,wide physical guard,moving-mesh stability

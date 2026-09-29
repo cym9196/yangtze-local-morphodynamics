@@ -1,15 +1,17 @@
-# Reproducibility and feasibility record
+# 可复现性与可行性验证记录
+
+本文件保存网格、短时耦合、数值稳定性、并行效率和资源需求的验证证据。
 
 Test host: Ubuntu/OpenFOAM v2412, AMD Ryzen 5 7500F (6 physical cores),
 15 GiB RAM, no swap. Tests were run on 2026-09-27 and 2026-09-28.
 
 ## Mesh verification
 
-- volume cells: 35,840;
-- finite-area bed faces: 1,024;
+- target volume cells: 125,000 (uniform 50 x 50 x 50; pending fresh OpenFOAM check);
+- target finite-area bed faces: 2,500 (uniform 50 x 50; pending fresh OpenFOAM check);
 - water-mesh bounding box: 0.05 x 0.05 x 0.05 m;
-- minimum/maximum cell volume: 1e-9 / 4.53e-8 m3;
-- maximum aspect ratio: 4.075;
+- target minimum/maximum cell volume: 1e-9 / 1e-9 m3;
+- target maximum aspect ratio: 1.0;
 - maximum/average non-orthogonality: 0 / 0 deg;
 - maximum skewness: 5.93e-14;
 - `checkMesh`: Mesh OK;
@@ -92,6 +94,33 @@ The evidence is preserved remotely as `log.couplingSmoke.5cmStability2p5s`,
 `5cmStability2p5s.sha256`. The Exner limiter was active, so this run establishes
 numerical robustness, not site-calibrated morphological accuracy.
 
+That short regression was insufficient: the subsequent production run
+reproduced a floating-point failure at 6.2786213 s. Once the adaptive CFD time
+step collapsed, the fixed per-step Exner cap implied an unbounded bed-mesh
+velocity and amplified the pressure/immersed-boundary feedback. The current
+candidate therefore adds a second `2.5e-3 m/s` bed-change-rate cap, keeps the
+diffuse solid mask 0.003 m inside the horizontal CFD boundaries, resolves the
+0.0002 s Brinkman time with `maxDeltaT=0.0002 s`, and uses two PIMPLE outer
+loops plus three pressure correctors. Stability beyond 6.2786213 s remains a
+required acceptance test, not an assumed result.
+
+The rebuilt uniform 1 mm candidate passed a harsher immediate-release test to
+0.2 s on six physical cores. It completed 1,000+ coupled steps with exit status
+0 in 357.85 s wall time and 142,696 KiB peak RSS per rank. At the final state:
+
+- maximum cell Courant number was 0.18413;
+- body centre was `(0.0370289 0.0246834 0.0103146) m`, after a stable encounter
+  with the inset retainer;
+- hydrodynamic force remained O(0.06 N), contact support O(0.14 N);
+- maximum velocity was 0.71355 m/s and maximum `Cs` was 0.14047;
+- sediment thickness remained 0.04951--0.05030 m;
+- no NaN, fatal error, segmentation fault or floating-point signal occurred.
+
+The checksummed evidence is stored on the simulation disk under
+`validation_evidence/1mmFix2_0p2s`. This establishes short-horizon coupled
+stability; the running 63 s production case remains the acceptance test beyond
+the previous 6.2786213 s failure time.
+
 ## Parallel decomposition benchmark
 
 The original generic Scotch split created upper-water partitions with zero
@@ -108,12 +137,13 @@ desktop default; any HPC layout still requires a fresh strong-scaling test.
 
 ## Full-run feasibility on this host
 
-At a 1 mm minimum cell and 0.50 m/s flow, `maxDeltaT=0.0005 s` implies at
-least 126,000 steps for 63 s. Startup timing is pessimistic, but it projects
-roughly 2--4 hours of uninterrupted wall time on this six-core CPU. This is a
-short-run extrapolation rather than a guarantee; the new 35,840-cell mesh easily
-fits on the current desktop host.
+At a 1 mm minimum cell and 0.50 m/s flow, `maxDeltaT=0.0002 s` implies at
+least 315,000 steps for 63 s. The 0.2 s uniform-grid benchmark projects about
+31.3 h on this six-core CPU; reserve a 36--48 h uninterrupted window because
+bed motion, output and reconstruction add workload later. The measured memory
+use is small relative to 15 GiB, but the final wall time remains provisional
+until the full run completes.
 
 The local Ubuntu host is now a practical production target. HPC is optional;
-if used, strong-scaling should be measured first because 64 MPI ranks would be
-excessive for only 35,840 cells.
+if used, strong-scaling should be measured first; six physical cores remain the
+desktop baseline and 8--16 ranks are the first sensible HPC measurements.

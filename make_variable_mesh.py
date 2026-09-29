@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Generate the annotated 1--25 mm multiblock OpenFOAM mesh.
+# 中文说明：生成 5 cm×5 cm×5 cm 水体的全域 1 mm 正交六面体网格字典。
+"""Generate the deterministic uniform 1 mm OpenFOAM mesh.
 
-The Cartesian topology is intentionally generated instead of hand-writing 75
-blocks.  Every interface is conformal, which is required by the moving Exner
-bed.  The 1 mm x/y core covers the 10 x 10 mm iron block plus 5 mm clearance
-on every side.  The lowest 25 mm is also 1 mm in z; the upper half grades
-toward the rigid-lid free surface without exceeding the requested 25 mm cap.
+The 50 x 50 x 50 Cartesian water mesh resolves the complete local domain at
+1 mm, not only the cells near the iron block.  The Exner bed therefore has a
+uniform 50 x 50 finite-area mesh.  Keeping one conformal block also removes
+grading-interface truncation error from the quantitative 60 s baseline.
 """
 
 from pathlib import Path
@@ -14,18 +14,16 @@ CASE = Path(__file__).resolve().parent
 OUT = CASE / "system" / "blockMeshDict"
 
 # Coordinates, cell counts and grading ratios (last cell / first cell).
-# The 0.010--0.015 m and 0.035--0.040 m bands connect 2.5 mm outer cells to
-# the 1 mm core.  On this small domain the actual maximum is about 3.3 mm in
-# the upper water column; using the nominal 25 mm cap would under-resolve it.
-X = [0.000, 0.010, 0.015, 0.035, 0.040, 0.050]
-Y = [0.000, 0.010, 0.015, 0.035, 0.040, 0.050]
-Z = [0.000, 0.025, 0.050]
-NX = [4, 2, 20, 2, 4]
-NY = [4, 2, 20, 2, 4]
-NZ = [25, 10]
-GX = [1.0, 0.50, 1.0, 2.0, 1.0]
-GY = [1.0, 0.50, 1.0, 2.0, 1.0]
-GZ = [1.0, 3.0]
+# One 50 mm cube divided into 50 cells per axis gives exactly 1 mm everywhere.
+X = [0.000, 0.050]
+Y = [0.000, 0.050]
+Z = [0.000, 0.050]
+NX = [50]
+NY = [50]
+NZ = [50]
+GX = [1.0]
+GY = [1.0]
+GZ = [1.0]
 
 
 def vid(i: int, j: int, k: int) -> int:
@@ -37,6 +35,7 @@ def face(a: int, b: int, c: int, d: int) -> str:
 
 
 lines = [
+    "// 中文说明：定义 0.05 m×0.05 m×0.05 m 水体的全域 1 mm 正交六面体网格。",
     "FoamFile",
     "{",
     "    version 2.0;",
@@ -132,7 +131,7 @@ for name, (kind, faces) in patches.items():
 lines += [");", "", "mergePatchPairs ();", ""]
 # Write bytes so Windows does not translate LF to CRLF.  The generated file is
 # then byte-identical on Windows, Ubuntu and GitHub Actions.
-OUT.write_bytes("\n".join(lines).encode("ascii"))
+OUT.write_bytes("\n".join(lines).encode("utf-8"))
 
 ncells = sum(NX) * sum(NY) * sum(NZ)
 nbed = sum(NX) * sum(NY)

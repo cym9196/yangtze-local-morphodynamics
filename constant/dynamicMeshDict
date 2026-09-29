@@ -1,3 +1,4 @@
+// 中文说明：指定动态网格类型和床面位移求解器，用于随冲淤移动体网格。
 FoamFile
 {
     version     2.0;
@@ -15,4 +16,3 @@ displacementLaplacianCoeffs
     // Concentrate mesh deformation near the movable bed.
     diffusivity inverseDistance (bed);
 }
-

@@ -1,3 +1,4 @@
+// 中文说明：比耗散率 omega 的初始场及 k-omega SST 边界条件。
 FoamFile
 {
     version     2.0;

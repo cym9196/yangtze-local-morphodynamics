@@ -1,3 +1,4 @@
+// 中文说明：组装并求解悬沙浓度对流—扩散—沉降方程，施加侵蚀沉积源项与浓度上限。
 /*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors

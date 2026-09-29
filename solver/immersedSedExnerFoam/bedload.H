@@ -1,3 +1,4 @@
+// 中文说明：按临界 Shields、Meyer-Peter 公式和床坡修正计算推移质输沙率。
 /*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors
@@ -120,7 +121,7 @@ if (saturationType == "implicit1D")
 else if (saturationType == "explicit")
 {
     // time step
-    const scalar& deltaT = runTime.time().deltaT().value();
+    const scalar deltaT = runTime.deltaTValue();
     scalar TsatLim = 2 * deltaT;
     scalar TsatCorr = max(Tsat->value(), 2 * deltaT);
     if (Tsat->value() < TsatLim)
@@ -201,10 +202,6 @@ else if (saturationType == "explicit")
             }
         }
     }
-
-    // normal to faMesh faces
-    const vectorField& nFaces =
-        bed.aMesh().faceAreaNormals().internalField();
 
     // reconstruct qb from qbProj on bed surface
     forAll(meshProj.S(), facei)

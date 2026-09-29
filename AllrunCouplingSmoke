@@ -1,4 +1,5 @@
 #!/bin/sh
+# 中文说明：用极短计算验证输沙、床面更新、接触和六自由度耦合分支是否可运行。
 # Validate the sediment exchange, Exner update, contact and 6-DoF branches.
 # The production dictionaries are restored automatically on every exit path.
 
@@ -11,6 +12,7 @@ fi
 set -e
 NPROCS="${NPROCS:-6}"
 SMOKE_ENDTIME="${SMOKE_ENDTIME:-0.0003}"
+SMOKE_WRITE_INTERVAL="${SMOKE_WRITE_INTERVAL:-0.05}"
 
 control_backup=$(mktemp)
 body_backup=$(mktemp)
@@ -38,6 +40,8 @@ cp -r 0_org 0
 
 # Release both branches immediately, but integrate only two tiny steps.
 foamDictionary system/controlDict -entry endTime -set "$SMOKE_ENDTIME" >/dev/null
+foamDictionary system/controlDict \
+    -entry writeInterval -set "$SMOKE_WRITE_INTERVAL" >/dev/null
 foamDictionary constant/immersedBodyProperties \
     -entry releaseTime -set 0 >/dev/null
 foamDictionary constant/immersedBodyProperties \

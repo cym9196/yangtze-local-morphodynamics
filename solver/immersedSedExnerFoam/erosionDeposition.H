@@ -1,3 +1,4 @@
+// 中文说明：根据床面剪切与悬沙浓度计算侵蚀率、沉积率及床沙交换通量。
 /*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors

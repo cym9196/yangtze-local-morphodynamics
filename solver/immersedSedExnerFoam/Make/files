@@ -1,3 +1,4 @@
+/* 中文说明：指定主源文件和最终生成的可执行程序名称。 */
 sedExnerFoam.C
 
 EXE = $(FOAM_USER_APPBIN)/immersedSedExnerFoam

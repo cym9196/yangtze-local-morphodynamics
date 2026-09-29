@@ -1,3 +1,4 @@
+// 中文说明：组装动量方程，加入湍流、体源项和 Brinkman 浸没边界惩罚力。
 /*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors

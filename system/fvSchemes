@@ -1,3 +1,4 @@
+// 中文说明：规定三维流场和悬沙方程的有限体积离散格式。
 FoamFile
 {
     version     2.0;
@@ -55,4 +56,3 @@ wallDist
 {
     method meshWave;
 }
-

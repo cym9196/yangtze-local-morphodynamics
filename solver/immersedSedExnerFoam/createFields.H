@@ -1,3 +1,4 @@
+// 中文说明：读取物性并创建速度、压力、湍流、悬沙及诊断用体字段。
 /*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors

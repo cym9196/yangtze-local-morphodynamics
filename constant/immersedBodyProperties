@@ -1,3 +1,4 @@
+// 中文说明：铁块几何、质量、六自由度、接触、摩擦、阻尼和水平限位参数。
 FoamFile
 {
     version     2.0;
@@ -51,8 +52,10 @@ contactProperties
 // The block remains free inside the frame and can translate, roll and tip.
 retainerProperties
 {
-    min             (0 0 -1);
-    max             (0.05 0.05 1);
+    // Keep the smoothed solid mask at least two interface thicknesses away
+    // from inlet/outlet/side-wall boundary conditions.
+    min             (0.003 0.003 -1);
+    max             (0.047 0.047 1);
     activeAxes      (1 1 0);
     stiffness       200;
     dampingRatio    1.20;

@@ -1,4 +1,5 @@
 #!/bin/bash
+# 中文说明：Slurm 集群提交模板；使用前需按目标集群修改账户、分区和环境路径。
 #SBATCH --job-name=yangtze-iron-63s
 #SBATCH --nodes=1
 #SBATCH --ntasks=8

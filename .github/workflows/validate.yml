@@ -1,3 +1,4 @@
+# 中文说明：GitHub Actions 自动执行静态校验，防止参数、几何和字典彼此不一致。
 name: validate-case
 
 on:

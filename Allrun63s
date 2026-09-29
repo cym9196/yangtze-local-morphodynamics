@@ -1,4 +1,5 @@
 #!/bin/sh
+# 中文说明：执行完整生产流程，包括建网、3 s 启动和 60 s 水沙床面刚体耦合。
 # Rebuild, spin up for 3 s, then run 60 physical seconds of coupled motion.
 
 cd "${0%/*}" || exit 1

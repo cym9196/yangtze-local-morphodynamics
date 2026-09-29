@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# 中文说明：按给定进程数生成只在水平面切分、每个分区贯穿水深的并行方案。
 """Write a bed-aware hierarchical decomposition for any MPI rank count.
 
 All partitions span the full water depth (nz=1), so every rank owns part of
@@ -31,7 +32,8 @@ if nprocs < 1:
 
 nx, ny = horizontal_factors(nprocs)
 target = Path(__file__).resolve().parent / "system" / "decomposeParDict"
-content = f"""FoamFile
+content = f"""// 中文说明：并行分区只沿水平面切分，使每个分区都贯穿水深并拥有床面。
+FoamFile
 {{
     version     2.0;
     format      ascii;
@@ -50,5 +52,5 @@ hierarchicalCoeffs
     order   xyz;
 }}
 """
-target.write_bytes(content.encode("ascii"))
+target.write_bytes(content.encode("utf-8"))
 print(f"Wrote {target}: {nx} x {ny} x 1 = {nprocs} partitions")

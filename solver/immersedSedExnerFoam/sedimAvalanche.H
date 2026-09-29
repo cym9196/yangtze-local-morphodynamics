@@ -1,3 +1,4 @@
+// 中文说明：当局部床坡超过休止角时执行雪崩修正，重新分配床沙。
 /*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors

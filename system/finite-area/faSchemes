@@ -1,3 +1,4 @@
+// 中文说明：规定有限面积床面方程的时间、梯度、散度和拉普拉斯离散格式。
 FoamFile
 {
     version     2.0;
@@ -12,4 +13,3 @@ divSchemes           {}
 laplacianSchemes     {}
 interpolationSchemes {}
 lnGradSchemes        {}
-

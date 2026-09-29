@@ -1,3 +1,4 @@
+# 中文说明：声明本仓库的标准引用信息，便于论文和数据成果正确署名。
 cff-version: 1.2.0
 message: "If this model supports a publication, cite this repository and the underlying OpenFOAM/sedExnerFoam software."
 title: "Yangtze local 3D morphodynamic iron-block benchmark"

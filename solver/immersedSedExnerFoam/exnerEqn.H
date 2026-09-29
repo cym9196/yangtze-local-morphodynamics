@@ -1,3 +1,4 @@
+// 中文说明：求解 Exner 床面守恒方程，并限制单步床面变化以保证毫米网格稳定。
 /*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors
@@ -119,6 +120,8 @@ if (filterExner)
 // than 1% of a 1 mm cell in one CFD step is clipped.
 scalar maxRawBedChange = 0;
 label limitedBedFaces = 0;
+const scalar activeBedChangeLimit =
+    min(maxBedChangePerStep, maxBedChangeRate*deltaT);
 forAll(dH, facei)
 {
     const scalar rawBedChange = dH[facei];
@@ -126,8 +129,8 @@ forAll(dH, facei)
     dH[facei] =
         min
         (
-            max(rawBedChange, -maxBedChangePerStep),
-            maxBedChangePerStep
+            max(rawBedChange, -activeBedChangeLimit),
+            activeBedChangeLimit
         );
     if (mag(dH[facei] - rawBedChange) > SMALL)
     {
@@ -140,7 +143,8 @@ if (limitedBedFaces > 0)
 {
     Info<< "morphodynamic limiter: faces=" << limitedBedFaces
         << " rawMax=" << maxRawBedChange
-        << " limitedMax=" << maxBedChangePerStep << " m" << endl;
+        << " limitedMax=" << activeBedChangeLimit
+        << " m (rate=" << maxBedChangeRate << " m/s)" << endl;
 }
 
 if (bed.bedMotion())

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# 中文说明：把 Exner 床面封闭成实体砂层，并叠加铁块姿态生成图片和指标。
 """Render the Exner interface as a closed 0.05 m-deep sand volume.
 
 The calculation still evolves a morphodynamic surface.  This renderer closes
@@ -213,7 +214,7 @@ def main():
         ))
 
         ax.set_title(
-            f"1--25 mm immersed-boundary scour     t = {time_value:05.2f} s\n"
+            f"uniform 1 mm immersed-boundary scour     t = {time_value:05.2f} s\n"
             "0.50 m/s Yangtze flow | iron block | movable Exner bed",
             fontsize=14, pad=13, color="#17232e"
         )

@@ -1,3 +1,4 @@
+// 中文说明：把有限面积床面位移传递到体网格并执行动态网格移动。
 /*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors

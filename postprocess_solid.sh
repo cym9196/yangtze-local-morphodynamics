@@ -1,4 +1,5 @@
 #!/bin/sh
+# 中文说明：导出各时刻床面并渲染有厚度的砂层帧、指标表和动画。
 # Export every reconstructed bed surface and render the 0.05 m-deep solid
 # sand layer. Run this after reconstructing the desired MPI time directories.
 
@@ -17,7 +18,7 @@ foamToVTK -overwrite -noZero -no-internal -no-fields -patches '(bed)' \
 
 rm -rf frames_solid
 python3 render_solid_sand.py \
-    --series VTK_bed_animation/yangtzeIronBlock3D_1to25mm.vtm.series \
+    --series VTK_bed_animation/yangtzeIronBlock3D_1mm60s.vtm.series \
     --motion processor0/postProcessing/immersedBodyMotion/motion.dat \
     --output frames_solid \
     --exaggeration 8

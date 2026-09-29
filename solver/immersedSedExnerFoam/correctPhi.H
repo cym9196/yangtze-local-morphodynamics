@@ -1,3 +1,4 @@
+// 中文说明：网格发生移动后修正面通量 phi，恢复质量守恒。
 /*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors

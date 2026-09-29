@@ -1,3 +1,4 @@
+// 中文说明：规定压力、速度、湍流和悬沙方程求解器及 PIMPLE 控制参数。
 FoamFile
 {
     version     2.0;
@@ -9,6 +10,20 @@ FoamFile
 
 solvers
 {
+    U
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-7;
+        relTol          0.05;
+    }
+
+    UFinal
+    {
+        $U;
+        relTol          0;
+    }
+
     Phi
     {
         solver          GAMG;
@@ -84,9 +99,9 @@ solvers
 
 PIMPLE
 {
-    momentumPredictor          0;
-    nOuterCorrectors           1;
-    nCorrectors                2;
+    momentumPredictor          1;
+    nOuterCorrectors           2;
+    nCorrectors                3;
     nNonOrthogonalCorrectors   1;
     pRefPoint                  (0.025 0.025 0.025);
     pRefValue                  0;

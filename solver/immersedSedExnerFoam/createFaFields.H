@@ -1,3 +1,4 @@
+// 中文说明：创建有限面积床面、输沙、侵蚀沉积和 Exner 方程所需字段与模型。
 /*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors
@@ -123,6 +124,22 @@ if (maxBedChangePerStep <= 0)
     Info << abort(FatalError) << endl;
 }
 Info << "maximum bed change per step: " << maxBedChangePerStep << " m" << endl;
+
+// A displacement-only cap becomes unsafe when the hydrodynamic time step is
+// reduced: a fixed displacement divided by a vanishing deltaT represents an
+// unbounded mesh velocity.  Limit the physical bed-change rate as well.
+const scalar maxBedChangeRate =
+    bedloadProperties.lookupOrDefault<scalar>
+    (
+        "maxBedChangeRate",
+        2.5e-3
+    );
+if (maxBedChangeRate <= 0)
+{
+    FatalError << "maxBedChangeRate must be positive" << endl;
+    Info << abort(FatalError) << endl;
+}
+Info << "maximum bed change rate: " << maxBedChangeRate << " m/s" << endl;
 
 // list of patch to apply zeroDisplacements condition
 List<word> fixedFaPatchNames;

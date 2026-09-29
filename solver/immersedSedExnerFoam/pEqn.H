@@ -1,3 +1,4 @@
+// 中文说明：组装压力校正方程并修正速度与通量，使不可压流动满足连续性。
 /*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors

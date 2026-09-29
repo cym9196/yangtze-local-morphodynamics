@@ -1,3 +1,4 @@
+// 中文说明：对原始 Shields 参数做床面空间滤波，减少局部数值噪声造成的假冲刷。
 /*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors

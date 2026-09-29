@@ -1,4 +1,6 @@
-# Parameter provenance and model references
+# 参数来源与模型参考文献
+
+本文件记录各物理参数、经验公式和模型实现的出处，便于复核与论文引用。
 
 The parameter table deliberately distinguishes observations from assumptions.
 No site-independent value should be presented as a calibrated Yangtze value.

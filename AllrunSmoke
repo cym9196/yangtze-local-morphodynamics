@@ -1,4 +1,5 @@
 #!/bin/sh
+# 中文说明：进行六进程短时冒烟测试和性能基准，退出时自动恢复正式参数。
 # Short six-rank validation/benchmark. It changes endTime only temporarily.
 
 cd "${0%/*}" || exit 1

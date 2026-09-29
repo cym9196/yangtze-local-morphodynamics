@@ -1,3 +1,4 @@
+// 中文说明：在有限面积床面上平衡推移质通量并处理边界与并行一致性。
 /*---------------------------------------------------------------------------* \
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors

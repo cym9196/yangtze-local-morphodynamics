@@ -1,3 +1,4 @@
+// 中文说明：选择不可压 RANS 与 k-omega SST 湍流模型。
 FoamFile
 {
     version     2.0;

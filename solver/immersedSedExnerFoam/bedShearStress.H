@@ -1,3 +1,4 @@
+// 中文说明：从近床流场计算床面切应力、摩阻速度和 Shields 参数。
 /*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors
