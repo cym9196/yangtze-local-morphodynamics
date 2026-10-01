@@ -287,6 +287,11 @@ int main(int argc, char *argv[])
                         betaVf.boundaryFieldRef()
                     );
             }
+
+            // AUTO_WRITE does not know that sixDoFRigidBodyMotion has changed
+            // internally, so refresh the dictionary before the time is saved.
+            bodyMotionState.clear();
+            bodyMotion.state().write(bodyMotionState);
             runTime.write();
 
             if (Pstream::master())

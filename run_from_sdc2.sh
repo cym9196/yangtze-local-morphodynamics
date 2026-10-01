@@ -17,4 +17,14 @@ export LD_LIBRARY_PATH="$FOAM_USER_LIBBIN:$LD_LIBRARY_PATH"
 cd "$case_dir"
 NPROCS="${NPROCS:-6}"
 export NPROCS
+
+# Reuse a valid decomposed checkpoint when one exists.  This keeps an SSH
+# reconnect or machine restart from silently deleting an in-progress run.
+latest=$(foamListTimes -processor -latestTime 2>/dev/null || true)
+if [ -n "$latest" ]; then
+    echo "Found decomposed checkpoint at physical time $latest; resuming."
+    exec ./Allresume63s
+fi
+
+echo "No decomposed checkpoint found; starting a new production run."
 exec ./Allrun63s

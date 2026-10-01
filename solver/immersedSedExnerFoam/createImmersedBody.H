@@ -143,10 +143,26 @@ const scalar nutFieldMax = stabilityProperties.get<scalar>("nutMax");
 const dictionary& sixDoFCoeffs =
     immersedBodyProperties.subDict("sixDoFCoeffs");
 
+// Keep the complete rigid-body integrator state alongside every written CFD
+// time.  READ_IF_PRESENT makes a restart continue the saved pose/momentum;
+// a fresh case still falls back to the initial values in sixDoFCoeffs.
+IOdictionary bodyMotionState
+(
+    IOobject
+    (
+        "immersedBodyState",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    sixDoFCoeffs
+);
+
 sixDoFRigidBodyMotion bodyMotion
 (
     sixDoFCoeffs,
-    sixDoFCoeffs,
+    bodyMotionState,
     runTime
 );
 

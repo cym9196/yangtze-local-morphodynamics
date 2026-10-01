@@ -77,11 +77,13 @@ numerics,suspended sediment convection,,upwind,-,bounded robust baseline,numeric
 numerics,PIMPLE momentum predictor,,on,-,stronger immersed-boundary coupling,validated in smoke test
 numerics,PIMPLE outer correctors,nOuter,2,-,stronger immersed-boundary coupling,check convergence
 numerics,pressure correctors,nCorrectors,3,-,stronger immersed-boundary coupling,check continuity
-numerics,nonorthogonal correctors,nNonOrth,1,-,conservative baseline although mesh is orthogonal,could be zero after verification
+numerics,nonorthogonal correctors,nNonOrth,2,-,extra correction for evolving bed-face nonorthogonality,restart stability control
 numerics,concentration lower bound,Cs_min,0,-,physical volume-fraction bound,hard bound
 numerics,concentration upper bound,Cs_max,0.60,-,bed solid fraction,hard bound
 numerics,maximum bed change per step,dH_max,1e-6,m,0.1 percent of minimum cell,stability guard
-numerics,maximum bed change rate,dHdt_max,2.5e-3,m/s,prevents mesh-speed blow-up when deltaT shrinks,stability guard
+numerics,maximum bed change rate,dHdt_max,5e-4,m/s,prevents mesh-speed blow-up when deltaT shrinks,stability guard
+numerics,Exner increment filter alpha,alpha_Exner,0.5,-,conservative neighbour volume exchange,4 passes per step
+numerics,Exner increment filter passes,N_Exner,4,-,controls grid-scale bed curvature,does not smooth accumulated elevation directly
 numerics,turbulent kinetic energy bounds,k_bounds,1e-10 to 1.0,m2/s2,wide physical guard,moving-mesh stability
 numerics,specific dissipation bounds,omega_bounds,1 to 1e5,1/s,wide physical guard,moving-mesh stability
 numerics,eddy viscosity maximum,nut_max,0.01,m2/s,wide physical guard,moving-mesh stability

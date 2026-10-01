@@ -75,43 +75,40 @@ else if (ABorder==1)
 
 if (filterExner)
 {
-    scalar dl = 0;
+    labelList neighbourCount(aMesh.nFaces(), Zero);
     for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
     {
-        scalar newdl = Foam::mag(
-            xFacesProj[neighbour[edgei]] - xFacesProj[owner[edgei]]);
-        if (newdl>dl)
-        {
-            dl = newdl;
-        }
+        ++neighbourCount[owner[edgei]];
+        ++neighbourCount[neighbour[edgei]];
     }
-    
-    scalar Kex = Foam::pow(dl, 2) * 0.1;
-    label NfiltZb = 3;
 
-    for (label j=0; j<NfiltZb; j++)
+    // Equal and opposite volume exchanges preserve sum(SfProj*dH).
+    for (label pass = 0; pass < nFiltExner; ++pass)
     {
-        scalarField lapldH(bed.aMesh().nFaces());
+        scalarField volumeCorrection(aMesh.nFaces(), Zero);
 
         for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
         {
-            vector Xon =
-                xFacesProj[neighbour[edgei]] - xFacesProj[owner[edgei]];
-            //scalar w = (ne & Xen) / (ne & Xon);
-            scalar graddHe =
-                (
-                    (
-                        dH[neighbour[edgei]]
-                        - dH[owner[edgei]]
-                    ) * (Xon & LeProj[edgei])
-                ) / Foam::pow(Foam::mag(Xon), 2);
+            const label own = owner[edgei];
+            const label nei = neighbour[edgei];
+            const scalar degree = max
+            (
+                scalar(neighbourCount[own]),
+                scalar(neighbourCount[nei])
+            );
+            const scalar exchangedVolume =
+                alphaFiltExner
+               *min(SfProj[own], SfProj[nei])
+               *(dH[nei] - dH[own])/(degree + VSMALL);
 
-            lapldH[owner[edgei]] =
-                (Kex / SfProj[owner[edgei]]) * graddHe;
-            lapldH[neighbour[edgei]] =
-                -(Kex / SfProj[neighbour[edgei]]) * graddHe;
+            volumeCorrection[own] += exchangedVolume;
+            volumeCorrection[nei] -= exchangedVolume;
         }
-        dH.primitiveFieldRef() += lapldH;
+
+        forAll(dH, facei)
+        {
+            dH[facei] += volumeCorrection[facei]/SfProj[facei];
+        }
     }
 }
 

@@ -161,9 +161,10 @@ label ABorder = 0;
 bool filterShields = false;
 bool filterExner = false;
 
-// for exner equation, filterering bed elevation increment
-//scalar alphaExn = 0;
-//label NExn = 0;
+// Conservative neighbour smoothing of the Exner increment. This controls
+// grid-scale curvature without flattening the accumulated bed elevation.
+scalar alphaFiltExner = 0;
+label nFiltExner = 0;
 
 if (bed.exist())
 {
@@ -187,10 +188,30 @@ if (bed.exist())
     if (switchFilterExner == "on")
     {
         filterExner = true;
-        //alphaExn = bedloadProperties.lookupOrDefault<scalar>(
-        //    "alphaFiltExner", 0.1);
-        //NExn = bedloadProperties.lookupOrDefault<label>(
-        //    "NfiltExner", 1);
+        alphaFiltExner = bedloadProperties.lookupOrDefault<scalar>
+        (
+            "alphaFiltExner",
+            0.5
+        );
+        nFiltExner = bedloadProperties.lookupOrDefault<label>
+        (
+            "NfiltExner",
+            4
+        );
+        if
+        (
+            alphaFiltExner <= 0
+         || alphaFiltExner > 1
+         || nFiltExner < 1
+        )
+        {
+            FatalError
+                << "alphaFiltExner must be in (0,1] and NfiltExner >= 1"
+                << endl;
+            Info << abort(FatalError) << endl;
+        }
+        Info<< "conservative Exner increment filter: alpha="
+            << alphaFiltExner << ", passes=" << nFiltExner << endl;
     }
     else if (switchFilterExner != "off")
     {

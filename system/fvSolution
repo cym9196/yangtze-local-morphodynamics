@@ -102,7 +102,7 @@ PIMPLE
     momentumPredictor          1;
     nOuterCorrectors           2;
     nCorrectors                3;
-    nNonOrthogonalCorrectors   1;
+    nNonOrthogonalCorrectors   2;
     pRefPoint                  (0.025 0.025 0.025);
     pRefValue                  0;
 }

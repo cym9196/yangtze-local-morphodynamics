@@ -49,11 +49,13 @@ maxBedChangePerStep 1e-6;
 
 // The second cap is proportional to deltaT, so adaptive time-step collapse
 // cannot turn a small displacement into an unbounded dynamic-mesh velocity.
-maxBedChangeRate 2.5e-3;
+maxBedChangeRate 5e-4;
 
-filterExner      off;
-alphaFiltExner  0.1;
-NfiltExner      1;
+// Smooth only the per-step Exner increment.  The neighbour exchanges are
+// equal and opposite in sediment volume, so accumulated bed mass is retained.
+filterExner      on;
+alphaFiltExner  0.5;
+NfiltExner      4;
 
 // A rigid layer is 0.05 m below the initial bed (defined in rigidBed).
 rigidBed on;

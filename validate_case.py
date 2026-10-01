@@ -61,7 +61,9 @@ checks = [
     ("constant/transportProperties", "rhoF", 999.0),
     ("constant/bedloadProperties", "morphoAccFactor", 1.0),
     ("constant/bedloadProperties", "maxBedChangePerStep", 1.0e-6),
-    ("constant/bedloadProperties", "maxBedChangeRate", 2.5e-3),
+    ("constant/bedloadProperties", "maxBedChangeRate", 5.0e-4),
+    ("constant/bedloadProperties", "alphaFiltExner", 0.5),
+    ("constant/bedloadProperties", "NfiltExner", 4.0),
     ("constant/immersedBodyProperties", "penaltyTime", 2.0e-4),
     ("constant/immersedBodyProperties", "interfaceThickness", 1.0e-3),
     ("constant/immersedBodyProperties", "releaseTime", 3.0),
@@ -97,7 +99,10 @@ expect_vector(
 
 # Values that are nested or vector-valued are checked explicitly.
 required_fragments = {
-    "constant/bedloadProperties": ["coefShields     1;"],
+    "constant/bedloadProperties": [
+        "coefShields     1;",
+        "filterExner      on;",
+    ],
     "constant/immersedBodyProperties": [
         "sixDoFRigidBodyMotionRestraint linearDamper;",
         "sixDoFRigidBodyMotionRestraint sphericalAngularDamper;",
@@ -116,6 +121,7 @@ required_fragments = {
         "momentumPredictor          1;",
         "nOuterCorrectors           2;",
         "nCorrectors                3;",
+        "nNonOrthogonalCorrectors   2;",
         "pRefPoint                  (0.025 0.025 0.025);",
     ],
     "system/controlDict": [

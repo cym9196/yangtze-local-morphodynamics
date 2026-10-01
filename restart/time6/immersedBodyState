@@ -1,0 +1,32 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| Six-degree-of-freedom restart state reconstructed from the original       |
+| production trajectory at physical time 6 s.                               |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "6";
+    object      immersedBodyState;
+}
+
+centreOfRotation (0.036913546 0.024630401 0.0045894818);
+orientation
+(
+     0.065492623   0.000068084775   0.99785305
+    -0.014723344   0.9998912        0.00089812127
+    -0.99774443   -0.014750554      0.0654865
+);
+velocity          (0.0001807116 0.00017578483 0.000019774307);
+
+// Centred estimates from the saved 5.9998 and 6.0002 s trajectory samples.
+acceleration      (0.2894656 -0.135746425 0.0296632125);
+
+// Body-frame angular momentum: I & (Q.T & omega) at 6 s.
+angularMomentum   (-2.14573468768e-7 -1.62275292027e-8 6.56575554877e-10);
+
+// Centred body-frame angular-momentum derivative at 6 s.
+torque            (-5.75911023840e-5 -5.82989533495e-6 -4.97121807666e-6);
+
+// ************************************************************************* //
