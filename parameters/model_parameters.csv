@@ -81,9 +81,12 @@ numerics,nonorthogonal correctors,nNonOrth,2,-,extra correction for evolving bed
 numerics,concentration lower bound,Cs_min,0,-,physical volume-fraction bound,hard bound
 numerics,concentration upper bound,Cs_max,0.60,-,bed solid fraction,hard bound
 numerics,maximum bed change per step,dH_max,1e-6,m,0.1 percent of minimum cell,stability guard
-numerics,maximum bed change rate,dHdt_max,5e-4,m/s,prevents mesh-speed blow-up when deltaT shrinks,stability guard
-numerics,Exner increment filter alpha,alpha_Exner,0.5,-,conservative neighbour volume exchange,4 passes per step
-numerics,Exner increment filter passes,N_Exner,4,-,controls grid-scale bed curvature,does not smooth accumulated elevation directly
+numerics,maximum bed change rate,dHdt_max,2.5e-4,m/s,prevents mesh-speed blow-up when deltaT shrinks,stability guard
+numerics,Exner increment filter,,off,-,replaced by MPI-consistent accumulated point-surface limiter,avoids decomposition-dependent seams
+numerics,maximum accumulated bed slope,S_max,0.55,-,28.8 degrees below 32 degree repose slope,absolute point-surface guard
+numerics,maximum point curvature,kappa_point,1e-4,m,departure from immediate-neighbour mean,absolute point-surface guard
+numerics,maximum bed regularisation rate,U_reg,1e-2,m/s,limits ALE velocity during inherited-mesh repair,mesh Courant about 0.002
+numerics,bed limiter passes,N_surface,4,-,normal per-step projection,64 passes while repairing an inherited steep restart
 numerics,turbulent kinetic energy bounds,k_bounds,1e-10 to 1.0,m2/s2,wide physical guard,moving-mesh stability
 numerics,specific dissipation bounds,omega_bounds,1 to 1e5,1/s,wide physical guard,moving-mesh stability
 numerics,eddy viscosity maximum,nut_max,0.01,m2/s,wide physical guard,moving-mesh stability

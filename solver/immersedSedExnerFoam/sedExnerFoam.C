@@ -77,6 +77,7 @@ Description
 #include "pointMesh.H"
 #include "pointPatchField.H"
 #include "wallDist.H"
+#include "syncTools.H"
 
 #include "MatrixTools.H"
 #include "LUscalarMatrix.H"

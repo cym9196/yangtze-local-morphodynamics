@@ -141,6 +141,55 @@ if (maxBedChangeRate <= 0)
 }
 Info << "maximum bed change rate: " << maxBedChangeRate << " m/s" << endl;
 
+// Absolute bed-surface guards.  Unlike the Exner increment limiter, these
+// operate on the accumulated moving boundary and therefore prevent a valid
+// sequence of small updates from eventually folding a quadrilateral bed face.
+const scalar maxBedSlope =
+    bedloadProperties.lookupOrDefault<scalar>("maxBedSlope", 0.55);
+const scalar maxBedPointCurvature =
+    bedloadProperties.lookupOrDefault<scalar>
+    (
+        "maxBedPointCurvature",
+        1.0e-4
+    );
+const scalar maxBedRegularisationRate =
+    bedloadProperties.lookupOrDefault<scalar>
+    (
+        "maxBedRegularisationRate",
+        1.0e-2
+    );
+const label bedSurfaceLimiterPasses =
+    bedloadProperties.lookupOrDefault<label>
+    (
+        "bedSurfaceLimiterPasses",
+        4
+    );
+const label bedSurfaceRepairPasses =
+    bedloadProperties.lookupOrDefault<label>
+    (
+        "bedSurfaceRepairPasses",
+        64
+    );
+
+if
+(
+    maxBedSlope <= 0
+ || maxBedPointCurvature <= 0
+ || maxBedRegularisationRate <= 0
+ || bedSurfaceLimiterPasses < 1
+ || bedSurfaceRepairPasses < bedSurfaceLimiterPasses
+)
+{
+    FatalError
+        << "Invalid accumulated bed-surface limiter settings" << endl;
+    Info << abort(FatalError) << endl;
+}
+
+Info<< "accumulated bed-surface limits: slope=" << maxBedSlope
+    << ", point curvature=" << maxBedPointCurvature << " m"
+    << ", correction rate=" << maxBedRegularisationRate << " m/s"
+    << endl;
+
 // list of patch to apply zeroDisplacements condition
 List<word> fixedFaPatchNames;
 

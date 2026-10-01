@@ -14,5 +14,7 @@ solver displacementLaplacian;
 displacementLaplacianCoeffs
 {
     // Concentrate mesh deformation near the movable bed.
-    diffusivity inverseDistance (bed);
+    // Quadratic inverse-distance diffusion moves near-bed layers together and
+    // transfers the remaining deformation smoothly towards the fixed lid.
+    diffusivity quadratic inverseDistance 1(bed);
 }

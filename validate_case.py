@@ -61,9 +61,14 @@ checks = [
     ("constant/transportProperties", "rhoF", 999.0),
     ("constant/bedloadProperties", "morphoAccFactor", 1.0),
     ("constant/bedloadProperties", "maxBedChangePerStep", 1.0e-6),
-    ("constant/bedloadProperties", "maxBedChangeRate", 5.0e-4),
+    ("constant/bedloadProperties", "maxBedChangeRate", 2.5e-4),
     ("constant/bedloadProperties", "alphaFiltExner", 0.5),
     ("constant/bedloadProperties", "NfiltExner", 4.0),
+    ("constant/bedloadProperties", "maxBedSlope", 0.55),
+    ("constant/bedloadProperties", "maxBedPointCurvature", 1.0e-4),
+    ("constant/bedloadProperties", "maxBedRegularisationRate", 1.0e-2),
+    ("constant/bedloadProperties", "bedSurfaceLimiterPasses", 4.0),
+    ("constant/bedloadProperties", "bedSurfaceRepairPasses", 64.0),
     ("constant/immersedBodyProperties", "penaltyTime", 2.0e-4),
     ("constant/immersedBodyProperties", "interfaceThickness", 1.0e-3),
     ("constant/immersedBodyProperties", "releaseTime", 3.0),
@@ -101,12 +106,15 @@ expect_vector(
 required_fragments = {
     "constant/bedloadProperties": [
         "coefShields     1;",
-        "filterExner      on;",
+        "filterExner      off;",
     ],
     "constant/immersedBodyProperties": [
         "sixDoFRigidBodyMotionRestraint linearDamper;",
         "sixDoFRigidBodyMotionRestraint sphericalAngularDamper;",
         "coeff 3.0e-5;",
+    ],
+    "constant/dynamicMeshDict": [
+        "diffusivity quadratic inverseDistance 1(bed);",
     ],
     "constant/g": ["value      (0 0 -9.80665);"],
     "0_org/U": ["uniform (0.50 0 0);"],
